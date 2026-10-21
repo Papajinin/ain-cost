@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <!-- 홈 화면 앱: 상태 표시줄을 화면과 겹치지 않게 따로 두고, 아이콘 이름은 AIN Cost -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="AIN Cost">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" href="apple-touch-icon.png">
+  <title>AIN Cost</title>
+  <script>
+    // 저장된 화면 모드와 테마 색을 먼저 적용해서 색이 깜빡이지 않게
+    try {
+      const s = JSON.parse(localStorage.getItem('ainCost')).settings;
+      if (s.theme === 'light' || s.theme === 'dark') document.documentElement.setAttribute('data-theme', s.theme);
+      if (s.accent === 'green' || s.accent === 'red') document.documentElement.setAttribute('data-accent', s.accent);
+    } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="style.css?v=7">
+</head>
+<body>
+  <!-- 시작 화면 (앱을 새로 열 때만, 약 1.8초): 동전이 한 바퀴 돌고 ₩ -->
+  <div class="splash" id="splash" aria-hidden="true">
+    <div class="splash-mark">
+      <!-- 돌아가는 것은 그림을 감싼 상자 (아이폰에서 GPU로 부드럽게 돌도록) -->
+      <div class="splash-coin">
+        <div class="splash-face">
+          <svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" stroke="none"/></svg>
+          <div class="splash-won">
+            <svg viewBox="0 0 64 64">
+              <path d="M15.3 18.2 L22.7 45.1 L32 23.3 L41.3 45.1 L48.7 18.2" stroke-width="8.1"/>
+              <path d="M13.1 32 H50.9" stroke-width="6.1"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <div class="wordmark splash-word"><b>AIN</b> Cost</div>
+      <div class="splash-dots"><i></i><i></i><i></i></div>
+    </div>
+  </div>
+
+  <div class="app">
+    <!-- 상단 헤더 (맨 위 고정) -->
+    <header class="top">
+      <h1 class="wordmark"><b>AIN</b> Cost</h1>
+      <div class="top-right">
+        <button class="icon-btn" id="statsBtn" type="button" aria-label="통계">
+          <span class="icon-circle">
+            <svg viewBox="0 0 24 24"><path d="M5 20V11M12 20V5M19 20v-6"/></svg>
+          </span>
+        </button>
+        <button class="icon-btn" id="settingsBtn" type="button" aria-label="설정">
+          <span class="icon-circle">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          </span>
+        </button>
+      </div>
+    </header>
+
+    <!-- 달 이동 -->
+    <div class="month-nav">
+      <button class="nav-btn" id="prevBtn" type="button" aria-label="지난달">
+        <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>
+      </button>
+      <h2 class="month" id="monthTitle"></h2>
+      <button class="nav-btn" id="nextBtn" type="button" aria-label="다음 달">
+        <svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
+      </button>
+      <button class="today-btn" id="todayBtn" type="button" hidden>이번 달</button>
+    </div>
+
+    <!-- 이번 달 요약 -->
+    <section class="summary">
+      <div class="sum-main">
+        <div class="sum-total">
+          <span class="sum-label">이번 달 지출</span>
+          <span class="sum-amount" id="sumTotal"></span>
+        </div>
+        <div class="sum-bar" id="sumBar" role="img"></div>
+        <div class="sum-groups" id="sumGroups"></div>
+        <div class="sum-compare" id="sumCompare"></div>
+      </div>
+      <div class="sum-cats" id="sumCats" hidden></div>
+      <button class="sum-toggle" id="sumToggle" type="button" aria-expanded="false">
+        <span id="sumToggleText">유형별 보기</span>
+        <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+    </section>
+
+    <!-- 날짜별 기록 -->
+    <main id="records"></main>
+
+    <!-- 새 지출 버튼 -->
+    <div class="add-bar">
+      <button class="add-btn" id="addBtn" type="button">
+        <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>새 지출
+      </button>
+    </div>
+  </div>
+
+  <!-- 지출 입력 창 (아래에서 올라옴) -->
+  <div class="overlay" id="sheetOverlay" hidden>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+      <div class="sheet-top">
+        <button class="sheet-btn" id="sheetCancel" type="button">취소</button>
+        <h2 id="sheetTitle">새 지출</h2>
+        <button class="sheet-btn strong" id="sheetSave" type="button">저장</button>
+      </div>
+      <div class="sheet-scroll">
+        <div class="group amount-box">
+          <label class="amount-label" id="amountLabel" for="fAmount">금액</label>
+          <div class="amount-line">
+            <input class="f-amount" id="fAmount" type="text" inputmode="numeric" placeholder="0" autocomplete="off">
+            <span>원</span>
+          </div>
+        </div>
+
+        <div class="group">
+          <input class="f-title" id="fTitle" type="text" placeholder="내역" enterkeyhint="done" autocomplete="off" aria-label="내역">
+        </div>
+
+        <div class="group-label">유형</div>
+        <div class="cat-chips wrap" id="catChips"></div>
+
+        <div class="group-label">결제수단</div>
+        <div class="seg wide" id="fMethod"></div>
+
+        <!-- 할부: 몇 개월로 나눌지 -->
+        <div class="group" id="instGroup" hidden>
+          <div class="row"><span>몇 개월</span>
+            <div class="stepper">
+              <button type="button" id="monthsDown" aria-label="한 달 줄이기">−</button>
+              <span class="num" id="monthsText"></span>
+              <button type="button" id="monthsUp" aria-label="한 달 늘리기">+</button>
+            </div>
+          </div>
+          <div class="split">
+            <span class="split-label" id="splitLabel">이렇게 나눠서 들어가요</span>
+            <div class="split-grid" id="splitGrid"></div>
+          </div>
+        </div>
+        <!-- 할부 기록을 고칠 때 -->
+        <div class="group" id="instInfo" hidden>
+          <div class="row"><span>할부</span><span class="row-value num" id="instInfoText"></span></div>
+        </div>
+
+        <!-- 매달 나가는 돈 -->
+        <div class="group" id="recurGroup">
+          <label class="row" for="fRecur"><span>매달 나가는 돈으로 등록</span><input class="switch" id="fRecur" type="checkbox"></label>
+          <p class="row-note" id="recurDesc" hidden></p>
+          <label class="row" id="rowEndMonth" for="fEndMonth" hidden><span>끝나는 달 <em class="opt">(선택)</em></span><input class="f-date" id="fEndMonth" type="month"></label>
+        </div>
+
+        <div class="group">
+          <label class="row" for="fDate"><span>날짜</span><input class="f-date" id="fDate" type="date"></label>
+          <input class="f-memo-line" id="fMemo" type="text" placeholder="비고" enterkeyhint="done" autocomplete="off" aria-label="비고">
+        </div>
+        <p class="f-error" id="fError" hidden></p>
+
+        <div class="group" id="deleteGroup" hidden>
+          <button class="row danger" id="sheetDelete" type="button">삭제</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 통계 (아래에서 올라옴) -->
+  <div class="overlay" id="statsOverlay" hidden>
+    <div class="sheet tall" role="dialog" aria-modal="true" aria-labelledby="statsHeading">
+      <div class="sheet-top">
+        <span></span>
+        <h2 id="statsHeading">통계</h2>
+        <button class="sheet-btn strong" id="statsClose" type="button">닫기</button>
+      </div>
+      <div class="sheet-scroll">
+        <div id="statsPeriod"></div>
+        <div class="st-nav">
+          <button class="nav-btn" id="statsPrev" type="button" aria-label="이전">
+            <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>
+          </button>
+          <span class="month" id="statsTitle"></span>
+          <button class="nav-btn" id="statsNext" type="button" aria-label="다음">
+            <svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+        <div class="st-cards" id="statsBody"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 설정 -->
+  <div class="overlay" id="settingsOverlay" hidden>
+    <div class="sheet tall" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+      <div class="sheet-top">
+        <span></span>
+        <h2 id="settingsTitle">설정</h2>
+        <button class="sheet-btn strong" id="settingsClose" type="button">완료</button>
+      </div>
+      <div class="sheet-scroll">
+        <div class="group-label">화면 모드</div>
+        <div class="group"><div class="row"><div class="seg wide grow" id="sTheme">
+          <button type="button" data-v="light">라이트</button>
+          <button type="button" data-v="dark">다크</button>
+          <button type="button" data-v="auto">자동</button>
+        </div></div></div>
+
+        <div class="group-label">테마 색</div>
+        <div class="group"><div class="row"><div class="seg wide grow" id="sAccent">
+          <button type="button" data-v="blue"><i class="sw" style="background:#0071E3"></i>블루</button>
+          <button type="button" data-v="green"><i class="sw" style="background:#00B74F"></i>그린</button>
+          <button type="button" data-v="red"><i class="sw" style="background:#D31E3D"></i>레드</button>
+        </div></div></div>
+        <p class="hint">버튼과 강조 색이 바뀌어요. 이 계정의 모든 기기에 같이 적용돼요.</p>
+
+        <div class="group-label">유형</div>
+        <div class="group" id="sCats"></div>
+        <p class="hint">≡ 를 끌어서 순서를 바꿔요. 유형을 누르면 이름, 묶음(필수/선택), 색을 바꿀 수 있어요.</p>
+
+        <div class="group-label">결제수단</div>
+        <div class="group" id="sMethods"></div>
+
+        <div class="group-label">매달 나가는 돈</div>
+        <div class="group" id="sRecur"></div>
+        <p class="hint">누르면 금액, 날짜, 끝나는 달을 바꾸거나 그만 나가게 할 수 있어요.</p>
+
+        <div class="group-label">계정</div>
+        <div class="group">
+          <div class="row"><span>로그인</span><span class="row-value" id="accountEmail"></span></div>
+          <button class="row danger" id="logoutBtn" type="button">로그아웃</button>
+        </div>
+
+        <div class="group-label">데이터</div>
+        <div class="group">
+          <label class="row link" for="importFile">지난 기록 불러오기</label>
+          <input id="importFile" type="file" accept=".json,application/json" hidden>
+        </div>
+        <p class="hint">Claude가 만들어 준 지난 기록 파일(.json)을 골라요. 이미 있는 기록은 겹치지 않아요.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 로그인 화면 -->
+  <div class="login" id="login" hidden>
+    <div class="login-box">
+      <h1 class="wordmark big"><b>AIN</b> Cost</h1>
+      <p class="login-sub">가족 계정으로 로그인해 주세요</p>
+      <button class="add-btn" id="loginBtn" type="button">Google로 로그인</button>
+      <p class="f-error login-error" id="loginError" hidden></p>
+    </div>
+  </div>
+
+  <!-- 선택 창 (삭제 확인) -->
+  <div class="overlay" id="actionOverlay" hidden>
+    <div class="action-sheet">
+      <div class="action-group">
+        <p class="action-msg" id="actionMsg"></p>
+        <div id="actionBtns"></div>
+      </div>
+      <button class="action-cancel" id="actionCancel" type="button">취소</button>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="app.js?v=4"></script>
+  <script src="repeat.js?v=2"></script>
+  <script src="records.js?v=2"></script>
+  <script src="sheet.js?v=2"></script>
+  <script src="stats.js?v=3"></script>
+  <script src="settings.js?v=4"></script>
+  <script src="sync.js?v=2"></script>
+  <script src="main.js?v=5"></script>
+</body>
+</html>
