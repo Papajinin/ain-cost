@@ -1,4 +1,4 @@
-// AIN Cost 공통 v4: 날짜·금액 도우미, 저장소, 상태, 화면 모드·테마 색, 아래에서 올라오는 창
+// AIN Cost 공통 v5: 날짜·금액 도우미, 저장소, 상태, 화면 모드·테마 색, 아래에서 올라오는 창
 
 const STORE_KEY = 'ainCost';
 const WEEK_NAMES = ['일', '월', '화', '수', '목', '금', '토'];
@@ -32,7 +32,7 @@ function won(n) {
 // 묶음: must(필수) / free(선택). 색은 AIN Todo 카테고리 색 순서대로
 const DEFAULT_CATEGORIES = [
   { id: 'cat_regular', name: '정기', color: 'blue', group: 'must' },
-  { id: 'cat_irregular', name: '비정기', color: 'green', group: 'must' },
+  { id: 'cat_irregular', name: '변동', color: 'green', group: 'must' },
   { id: 'cat_loan', name: '대출', color: 'orange', group: 'must' },
   { id: 'cat_family', name: '가족', color: 'red', group: 'free' },
   { id: 'cat_social', name: '사회', color: 'purple', group: 'free' },

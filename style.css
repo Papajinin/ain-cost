@@ -1,4 +1,4 @@
-/* AIN Cost 스타일 v7 — 색·크기는 ../ain-todo/plan/design-guide.md(공통 디자인 가이드)를 따른다 */
+/* AIN Cost 스타일 v9 — 색·크기는 ../ain-todo/plan/design-guide.md(공통 디자인 가이드)를 따른다 */
 
 :root {
   --bg: #F2F2F7;
@@ -77,13 +77,13 @@
    - 버튼·막대·스위치·동전은 --primary, 흰 바탕 위 작은 글씨·아이콘은 --primary-text
    - 그린 버튼의 흰 글씨는 대비 2.66으로 기준(4.5)보다 낮음: 사용자가 고른 색이라 예외 (디자인 가이드 참고) */
 :root[data-accent="green"] { --primary: #00B74F; --primary-text: #007B33; }
-:root[data-accent="red"] { --primary: #D31E3D; --primary-text: #C50031; }
+:root[data-accent="red"] { --primary: #D31E3D; --primary-text: #D31E3D; }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"])[data-accent="green"] { --primary-text: #00B74F; }
-  :root:not([data-theme="light"])[data-accent="red"] { --primary-text: #FF7076; }
+  :root:not([data-theme="light"])[data-accent="red"] { --primary-text: #FF4048; }
 }
 :root[data-theme="dark"][data-accent="green"] { --primary-text: #00B74F; }
-:root[data-theme="dark"][data-accent="red"] { --primary-text: #FF7076; }
+:root[data-theme="dark"][data-accent="red"] { --primary-text: #FF4048; }
 
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
@@ -477,6 +477,9 @@ select.f-date { text-align-last: center; }
   transition: opacity .35s ease;
 }
 .splash.hide { opacity: 0; pointer-events: none; }
+/* 앱이 파일을 다 읽고 첫 화면을 그릴 때까지는 멈춰 있다가(첫 장면: 작은 동전, 안 보임),
+   main.js가 .go를 붙이면 그때부터 움직임. 로딩 중에 돌기 시작하면 아이폰이 바빠서 중간 각도로 멈춰 보였음 */
+.splash:not(.go) .splash-face, .splash:not(.go) .splash-won, .splash:not(.go) .splash-word, .splash:not(.go) .splash-dots i { animation-play-state: paused; }
 .splash-mark { display: flex; flex-direction: column; align-items: center; }
 .splash-coin { width: 46px; height: 46px; margin-bottom: 18px; perspective: 240px; }
 /* 그림(SVG)이 아니라 감싼 상자를 돌려야 앱이 바쁠 때도 끊기지 않음 */

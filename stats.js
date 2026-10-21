@@ -1,4 +1,4 @@
-// AIN Cost 통계 v3: 월(유형별, 선택 지출 안에서, 할부) / 연(월별 흐름, 작년과 비교), 카드 접기·펼치기
+// AIN Cost 통계 v4: 월(유형별, 선택 지출 안에서, 할부) / 연(월별 흐름, 작년과 비교), 카드 접기·펼치기
 
 const statsOverlay = document.getElementById('statsOverlay');
 const statsPeriod = document.getElementById('statsPeriod');
@@ -18,7 +18,7 @@ const st = {
   catId: null,
   unit: 'amt',      // amt | pct
   pick: 0,          // 연 그래프에서 고른 달 (0~11)
-  table: 'free'     // all | must | free
+  table: 'all'      // all | must | free
 };
 
 // ---------- 열기·닫기 ----------
@@ -242,8 +242,10 @@ function renderYearCards() {
 
   let tableHint = '';
   if (sumRow) {
-    const fd = now.slice(0, lastIdx + 1).reduce((s, t) => s + t.free, 0) - last.slice(0, lastIdx + 1).reduce((s, t) => s + t.free, 0);
-    tableHint = fd === 0 ? '선택 지출 작년과 같아요' : `선택 지출 ${shortWon(Math.abs(fd))}원 ${fd > 0 ? '늘었어요' : '줄었어요'}`;
+    // 표에서 고른 것(전체·필수·선택)에 맞춰 요약
+    const name = { all: '전체', must: '필수', free: '선택' }[st.table] + ' 지출';
+    const fd = sa - sb;
+    tableHint = fd === 0 ? `${name} 작년과 같아요` : `${name} ${shortWon(Math.abs(fd))}원 ${fd > 0 ? '늘었어요' : '줄었어요'}`;
   }
   return card('flow', '월별 흐름', '', flow) +
     card('table', '작년과 비교', tableHint, table);
