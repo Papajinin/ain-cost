@@ -1,4 +1,4 @@
-// AIN Cost 입력 창 v2: 지출 적기·고치기·지우기, 할부(회차 나누기), 매달 나가는 돈
+// AIN Cost 입력 창 v3: 지출 적기·고치기·지우기, 할부(회차 나누기), 매달 나가는 돈, 내역 자동완성
 
 const sheetOverlay = document.getElementById('sheetOverlay');
 const sheetTitle = document.getElementById('sheetTitle');
@@ -6,6 +6,7 @@ const sheetSave = document.getElementById('sheetSave');
 const amountLabel = document.getElementById('amountLabel');
 const fAmount = document.getElementById('fAmount');
 const fTitle = document.getElementById('fTitle');
+const titleSuggest = document.getElementById('titleSuggest');
 const catChips = document.getElementById('catChips');
 const fMethod = document.getElementById('fMethod');
 const instGroup = document.getElementById('instGroup');
@@ -36,6 +37,7 @@ let form = null;      // 입력 중인 값
 let original = null;  // 고치는 기록 (새로 적을 때는 null)
 // kind: new(새로) | plain(보통 기록) | inst(할부 회차) | recur(매달 나가는 돈으로 들어온 기록)
 let kind = 'new';
+let titleIndex = []; // 지난 내역 이름: [{ title, count, last(가장 최근 기록) }] 많이 쓴 순
 
 // ---------- 열기·닫기 ----------
 function defaultDate() {
@@ -69,6 +71,8 @@ function openSheet(recordId) {
   fTitle.value = r ? r.title : '';
   fMemo.value = r ? r.memo || '' : '';
   sheetTitle.textContent = r ? '지출 고치기' : '새 지출';
+  buildTitleIndex();
+  hideSuggest();
   deleteGroup.hidden = !r;
   showError('');
   renderForm();
@@ -200,6 +204,65 @@ monthsUp.addEventListener('click', () => { form.months = Math.min(MAX_MONTHS, fo
 
 fRecur.addEventListener('change', () => { form.recurOn = fRecur.checked; renderForm(); });
 fEndMonth.addEventListener('change', () => { form.endMonth = fEndMonth.value; showError(''); });
+
+// ---------- 내역 자동완성 ----------
+// 창을 열 때 한 번 모아 둠 (같은 이름이면 많이 쓴 순, 횟수가 같으면 최근에 쓴 순)
+function buildTitleIndex() {
+  const map = new Map();
+  state.records.forEach(r => {
+    const t = (r.title || '').trim();
+    if (!t) return;
+    const e = map.get(t);
+    if (!e) map.set(t, { title: t, count: 1, last: r });
+    else {
+      e.count++;
+      if (r.date >= e.last.date) e.last = r;
+    }
+  });
+  titleIndex = [...map.values()].sort((a, b) => b.count - a.count || (b.last.date > a.last.date ? 1 : -1));
+}
+
+function hideSuggest() {
+  titleSuggest.hidden = true;
+  titleSuggest.innerHTML = '';
+}
+
+// 친 글자가 들어간 이름을 최대 8개 (똑같이 적었으면 보이지 않음)
+function renderSuggest() {
+  const q = fTitle.value.trim();
+  const hits = q ? titleIndex.filter(e => e.title !== q && e.title.includes(q)).slice(0, 8) : [];
+  if (!hits.length) return hideSuggest();
+  titleSuggest.innerHTML = hits.map((e, i) => {
+    const at = e.title.indexOf(q);
+    const name = escapeHtml(e.title.slice(0, at)) + '<mark>' + escapeHtml(q) + '</mark>' + escapeHtml(e.title.slice(at + q.length));
+    return `<button class="sg" type="button" data-i="${i}"><span>${name}</span><small>${e.count}</small></button>`;
+  }).join('');
+  titleSuggest.hits = hits;
+  titleSuggest.hidden = false;
+  titleSuggest.scrollLeft = 0;
+}
+
+fTitle.addEventListener('input', renderSuggest);
+fTitle.addEventListener('blur', () => setTimeout(() => { if (document.activeElement !== fTitle) hideSuggest(); }, 150));
+// 추천을 누를 때 내역 칸의 키보드가 내려가지 않게
+titleSuggest.addEventListener('pointerdown', e => { if (e.target.closest('.sg')) e.preventDefault(); });
+titleSuggest.addEventListener('click', e => {
+  const b = e.target.closest('.sg');
+  if (!b) return;
+  const pick = titleSuggest.hits[Number(b.dataset.i)];
+  fTitle.value = pick.title;
+  hideSuggest();
+  // 새로 적을 때만: 그 이름을 가장 최근에 쓴 기록의 유형·결제수단을 미리 골라 둠 (바꿀 수 있음)
+  if (kind === 'new') {
+    const last = pick.last;
+    if (state.categories.some(c => c.id === last.categoryId)) form.categoryId = last.categoryId;
+    // 할부·매달 나가는 돈은 그때만의 설정이라 결제수단은 보통 수단일 때만 따라감
+    const m = findMethod(last.methodId);
+    if (m && !m.installment) form.methodId = last.methodId;
+    showError('');
+    renderForm();
+  }
+});
 
 // ---------- 저장 ----------
 function validate() {

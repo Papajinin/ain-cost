@@ -1,4 +1,4 @@
-/* AIN Cost 스타일 v9 — 색·크기는 ../ain-todo/plan/design-guide.md(공통 디자인 가이드)를 따른다 */
+/* AIN Cost 스타일 v10 — 색·크기는 ../ain-todo/plan/design-guide.md(공통 디자인 가이드)를 따른다 */
 
 :root {
   --bg: #F2F2F7;
@@ -13,6 +13,8 @@
   --on-primary: #FFFFFF;
   --primary-text: #0066CC;
   --must: #8E8E93; /* 필수 묶음 막대 (회색) */
+  --up: #D70015;   /* 작년보다 더 씀 */
+  --down: #1E7F35; /* 작년보다 덜 씀 (흰 카드 위 대비 5.1) */
 
   --c-blue: #007AFF;
   --c-green: #248A3D;
@@ -39,6 +41,8 @@
     --seg-active: #636366;
     --splash-bg: #000000;
     --primary-text: #409CFF;
+    --up: #FF453A;
+    --down: #30D158;
 
     --c-blue: #0A84FF;
     --c-green: #30D158;
@@ -61,6 +65,8 @@
   --seg-active: #636366;
   --splash-bg: #000000;
   --primary-text: #409CFF;
+  --up: #FF453A;
+  --down: #30D158;
 
   --c-blue: #0A84FF;
   --c-green: #30D158;
@@ -147,8 +153,8 @@ svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; 
 .sum-compare { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--sub); font-variant-numeric: tabular-nums; }
 .sum-compare b { font-weight: 600; color: var(--fg); }
 .sum-compare svg { flex: none; width: 14px; height: 14px; stroke-width: 2.8; }
-.sum-compare .down { color: var(--c-green); }
-.sum-compare .up { color: var(--c-red); }
+.sum-compare .down { color: var(--down); }
+.sum-compare .up { color: var(--up); }
 
 .sum-cats { padding: 4px 16px 12px; display: flex; flex-direction: column; gap: 8px; border-top: 0.5px solid var(--line); }
 .sc-head { font-size: 12px; color: var(--sub); padding-top: 8px; }
@@ -185,6 +191,19 @@ svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; 
 .r-title { font-size: 15px; overflow-wrap: anywhere; }
 .r-meta { font-size: 13px; color: var(--sub); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .r-amt { flex: none; font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* 이번 달의 내일 이후 기록: 한 줄로 접어 두고 누르면 펼침 */
+.future { margin: 18px 16px 0; background: var(--card); border-radius: 14px; overflow: hidden; }
+.future-row { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 52px; padding: 8px 14px; text-align: left; transition: background-color .15s; }
+.future-row:active { background: var(--fill); }
+.fu-body { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.fu-title { font-size: 15px; font-weight: 600; }
+.fu-amt { flex: none; font-size: 15px; font-weight: 600; color: var(--sub); font-variant-numeric: tabular-nums; }
+.future-row svg { flex: none; width: 14px; height: 14px; stroke-width: 2.4; color: var(--sub); transition: transform .2s; }
+.future-row[aria-expanded="true"] svg { transform: rotate(180deg); }
+.future-days { border-top: 0.5px solid var(--line); background: var(--bg); padding: 0 12px 14px; }
+.future-days .day-head { padding: 14px 4px 8px; }
+.future-days .list { margin: 0; }
 
 /* ---------- 새 지출 버튼 ---------- */
 .add-bar {
@@ -249,6 +268,13 @@ body.locked { overflow: hidden; }
   font: inherit; font-size: 30px; font-weight: 700; letter-spacing: -0.02em; color: var(--fg);
   font-variant-numeric: tabular-nums;
 }
+
+/* 내역 자동완성: 친 글자가 들어간 지난 내역을 많이 쓴 순으로 (옆으로 밀어서 더 보기) */
+.suggest { display: flex; gap: 6px; overflow-x: auto; padding: 8px 14px 10px; border-top: 0.5px solid var(--line); scrollbar-width: none; }
+.suggest::-webkit-scrollbar { display: none; }
+.sg { flex: none; display: flex; align-items: center; gap: 4px; height: 32px; padding: 0 12px; border-radius: 16px; background: var(--fill); font-size: 14px; white-space: nowrap; }
+.sg mark { background: none; color: inherit; font-weight: 700; }
+.sg small { font-size: 12px; color: var(--sub); font-variant-numeric: tabular-nums; }
 
 /* 유형 칩 (여러 줄로 감김) */
 .cat-chips { display: flex; gap: 8px; }
@@ -393,6 +419,17 @@ label.row { cursor: pointer; }
 .st-table thead th { font-size: 12px; color: var(--sub); border-bottom: 0.5px solid var(--line); }
 .st-table td.sub { color: var(--sub); }
 .st-table tr.sum th, .st-table tr.sum td { border-top: 0.5px solid var(--line); font-weight: 600; }
+.st-table td.up { color: var(--up); }
+.st-table td.down { color: var(--down); }
+
+/* 좌우로 밀어서 넘길 때: 밀린 쪽으로 살짝 사라졌다가 반대쪽에서 들어옴 */
+#statsOverlay .sheet-scroll { touch-action: pan-y; }
+.st-slide { transition: transform .14s ease-in, opacity .14s ease-in; }
+.st-slide.out-l { transform: translateX(-24px); opacity: 0; }
+.st-slide.out-r { transform: translateX(24px); opacity: 0; }
+.st-slide.in-l { transform: translateX(24px); opacity: 0; transition: none; }
+.st-slide.in-r { transform: translateX(-24px); opacity: 0; transition: none; }
+.st-slide.show { transition: transform .18s ease-out, opacity .18s ease-out; }
 
 /* ---------- 설정 ---------- */
 .seg.grow { flex: 1; }
@@ -510,5 +547,5 @@ select.f-date { text-align-last: center; }
 @media (prefers-reduced-motion: reduce) {
   .splash-face, .splash-word, .splash-dots i { animation: none; }
   .splash-won { animation: none; opacity: 1; }
-  .overlay, .sheet, .action-sheet, .sum-toggle svg, .st-head svg, .cat-row { transition: none; }
+  .overlay, .sheet, .action-sheet, .sum-toggle svg, .st-head svg, .cat-row, .future-row svg, .st-slide { transition: none; }
 }

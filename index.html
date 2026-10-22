@@ -18,7 +18,7 @@
       if (s.accent === 'green' || s.accent === 'red') document.documentElement.setAttribute('data-accent', s.accent);
     } catch (e) {}
   </script>
-  <link rel="stylesheet" href="style.css?v=9">
+  <link rel="stylesheet" href="style.css?v=10">
 </head>
 <body>
   <!-- 시작 화면 (앱을 새로 열 때만, 약 1.8초): 동전이 한 바퀴 돌고 ₩ -->
@@ -119,6 +119,7 @@
 
         <div class="group">
           <input class="f-title" id="fTitle" type="text" placeholder="내역" enterkeyhint="done" autocomplete="off" aria-label="내역">
+          <div class="suggest" id="titleSuggest" hidden></div>
         </div>
 
         <div class="group-label">유형</div>
@@ -185,7 +186,7 @@
             <svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
           </button>
         </div>
-        <div class="st-cards" id="statsBody"></div>
+        <div class="st-cards st-slide" id="statsBody"></div>
       </div>
     </div>
   </div>
@@ -265,11 +266,11 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-  <script src="app.js?v=5"></script>
+  <script src="app.js?v=6"></script>
   <script src="repeat.js?v=2"></script>
-  <script src="records.js?v=2"></script>
-  <script src="sheet.js?v=2"></script>
-  <script src="stats.js?v=4"></script>
+  <script src="records.js?v=3"></script>
+  <script src="sheet.js?v=3"></script>
+  <script src="stats.js?v=5"></script>
   <script src="settings.js?v=4"></script>
   <script src="sync.js?v=2"></script>
   <script src="main.js?v=6"></script>

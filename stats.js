@@ -1,4 +1,4 @@
-// AIN Cost 통계 v4: 월(유형별, 선택 지출 안에서, 할부) / 연(월별 흐름, 작년과 비교), 카드 접기·펼치기
+// AIN Cost 통계 v5: 월(유형별, 선택 지출 안에서, 할부) / 연(월별 흐름, 작년과 비교), 카드 접기·펼치기, 좌우로 밀어서 넘기기
 
 const statsOverlay = document.getElementById('statsOverlay');
 const statsPeriod = document.getElementById('statsPeriod');
@@ -61,6 +61,10 @@ function flowValue(t, mode, unit) {
 function signed(d) {
   if (!d) return '0';
   return (d > 0 ? '+' : '−') + Math.abs(d).toLocaleString('ko-KR');
+}
+// 더 쓰면 빨강, 덜 쓰면 초록 (첫 화면 요약 화살표와 같은 색)
+function diffClass(d) {
+  return d > 0 ? ' class="up"' : d < 0 ? ' class="down"' : '';
 }
 
 function shortWon(v) {
@@ -230,12 +234,12 @@ function renderYearCards() {
     const has = t.count > 0;
     if (has) { sa += pickV(t); sb += pickV(last[i]); }
     const d = pickV(t) - pickV(last[i]);
-    const diff = !has || !last[i].count ? '' : signed(d);
-    return `<tr><th scope="row">${i + 1}월</th><td>${has ? pickV(t).toLocaleString('ko-KR') : '—'}</td><td class="sub">${last[i].count ? pickV(last[i]).toLocaleString('ko-KR') : '—'}</td><td>${diff}</td></tr>`;
+    const show = has && last[i].count;
+    return `<tr><th scope="row">${i + 1}월</th><td>${has ? pickV(t).toLocaleString('ko-KR') : '—'}</td><td class="sub">${last[i].count ? pickV(last[i]).toLocaleString('ko-KR') : '—'}</td><td${show ? diffClass(d) : ''}>${show ? signed(d) : ''}</td></tr>`;
   }).join('');
   const td = sa - sb;
   const sumRow = lastIdx >= 0 && last.some(t => t.count)
-    ? `<tr class="sum"><th scope="row">${range}</th><td>${sa.toLocaleString('ko-KR')}</td><td class="sub">${sb.toLocaleString('ko-KR')}</td><td>${signed(td)}</td></tr>` : '';
+    ? `<tr class="sum"><th scope="row">${range}</th><td>${sa.toLocaleString('ko-KR')}</td><td class="sub">${sb.toLocaleString('ko-KR')}</td><td${diffClass(td)}>${signed(td)}</td></tr>` : '';
   const table = `<div class="st-table-top">${seg('table', [['all', '전체'], ['must', '필수'], ['free', '선택']], st.table, true)}</div>
     <div class="st-table-wrap"><table class="st-table num"><thead><tr><th>월</th><th>${st.year}년</th><th>${st.year - 1}년</th><th>작년보다</th></tr></thead><tbody>${rows}${sumRow}</tbody></table></div>
     <p class="st-note">−는 작년보다 덜 쓴 금액, +는 더 쓴 금액이에요.</p>`;
@@ -272,11 +276,47 @@ statsOverlay.addEventListener('click', e => {
   if (bar) { st.pick = Number(bar.dataset.i); return renderStats(); }
 });
 
+// 넘기기: 내용이 밀린 쪽으로 살짝 사라졌다가 반대쪽에서 들어옴 (움직임 줄이기 설정이면 바로 바뀜)
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+let statsMoving = false;
 function moveStats(n) {
-  if (st.period === 'month') st.month = addMonths(st.month, n);
-  else st.year += n;
-  renderStats();
+  if (statsMoving) return;
+  const step = () => {
+    if (st.period === 'month') st.month = addMonths(st.month, n);
+    else st.year += n;
+    renderStats();
+  };
+  if (reduceMotion.matches) return step();
+  statsMoving = true;
+  statsBody.classList.add(n > 0 ? 'out-l' : 'out-r');
+  setTimeout(() => {
+    step();
+    statsBody.className = 'st-cards st-slide ' + (n > 0 ? 'in-l' : 'in-r');
+    statsBody.offsetWidth; // 들어오는 움직임을 다음 장면에 시작
+    statsBody.className = 'st-cards st-slide show';
+    setTimeout(() => { statsBody.className = 'st-cards st-slide'; statsMoving = false; }, 180);
+  }, 140);
 }
+
+// 좌우로 밀기: 가로로 50px 넘게, 세로보다 확실히 가로로 밀었을 때만 (옆으로 스크롤되는 칸 안에서 민 것은 제외)
+const statsScroll = statsOverlay.querySelector('.sheet-scroll');
+let swipe = null;
+function inSideScroller(el) {
+  for (; el && el !== statsScroll; el = el.parentElement) {
+    if (el.scrollWidth > el.clientWidth + 1 && /auto|scroll/.test(getComputedStyle(el).overflowX)) return true;
+  }
+  return false;
+}
+statsScroll.addEventListener('pointerdown', e => {
+  swipe = e.pointerType === 'mouse' || inSideScroller(e.target) ? null : { x: e.clientX, y: e.clientY };
+});
+statsScroll.addEventListener('pointerup', e => {
+  if (!swipe) return;
+  const dx = e.clientX - swipe.x, dy = e.clientY - swipe.y;
+  swipe = null;
+  if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) moveStats(dx < 0 ? 1 : -1);
+});
+statsScroll.addEventListener('pointercancel', () => { swipe = null; });
 document.getElementById('statsPrev').addEventListener('click', () => moveStats(-1));
 document.getElementById('statsNext').addEventListener('click', () => moveStats(1));
 document.getElementById('statsClose').addEventListener('click', () => hideOverlay(statsOverlay));

@@ -1,4 +1,4 @@
-// AIN Cost 공통 v5: 날짜·금액 도우미, 저장소, 상태, 화면 모드·테마 색, 아래에서 올라오는 창
+// AIN Cost 공통 v6: 날짜·금액 도우미, 저장소, 상태, 화면 모드·테마 색, 아래에서 올라오는 창
 
 const STORE_KEY = 'ainCost';
 const WEEK_NAMES = ['일', '월', '화', '수', '목', '금', '토'];
@@ -60,7 +60,8 @@ let state = {
 const ui = {
   today: todayStr(),
   month: monthOf(todayStr()),
-  catsOpen: false
+  catsOpen: false,
+  futureOpen: false // 이번 달의 내일 이후 기록 펼침
 };
 
 function loadState() {
