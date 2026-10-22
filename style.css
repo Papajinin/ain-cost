@@ -1,4 +1,4 @@
-/* AIN Cost 스타일 v10 — 색·크기는 ../ain-todo/plan/design-guide.md(공통 디자인 가이드)를 따른다 */
+/* AIN Cost 스타일 v11 — 색·크기는 ../ain-todo/plan/design-guide.md(공통 디자인 가이드)를 따른다 */
 
 :root {
   --bg: #F2F2F7;
@@ -423,7 +423,7 @@ label.row { cursor: pointer; }
 .st-table td.down { color: var(--down); }
 
 /* 좌우로 밀어서 넘길 때: 밀린 쪽으로 살짝 사라졌다가 반대쪽에서 들어옴 */
-#statsOverlay .sheet-scroll { touch-action: pan-y; }
+#statsOverlay .sheet-scroll { touch-action: pan-y; flex: 1; min-height: 0; } /* 내용이 짧아도 창 아래까지 밀기가 닿게 */
 .st-slide { transition: transform .14s ease-in, opacity .14s ease-in; }
 .st-slide.out-l { transform: translateX(-24px); opacity: 0; }
 .st-slide.out-r { transform: translateX(24px); opacity: 0; }
