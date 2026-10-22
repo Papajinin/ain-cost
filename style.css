@@ -18,12 +18,12 @@
 
   --c-blue: #007AFF;
   --c-green: #248A3D;
-  --c-orange: #C93400;
+  --c-orange: #E06A00;
   --c-red: #D70015;
   --c-purple: #8944AB;
-  --c-pink: #D30F45;
-  --c-teal: #0071A4;
-  --c-brown: #7F6545;
+  --c-pink: #E85D9E;
+  --c-teal: #0097A7;
+  --c-brown: #A88B00; /* brown 이름표 = 노랑 (예전 기록과 호환) */
 
   --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Apple SD Gothic Neo", "Segoe UI", "Malgun Gothic", sans-serif;
   color-scheme: light;
@@ -49,9 +49,9 @@
     --c-orange: #FF9F0A;
     --c-red: #FF453A;
     --c-purple: #BF5AF2;
-    --c-pink: #FF375F;
+    --c-pink: #FF9CC4;
     --c-teal: #40C8E0;
-    --c-brown: #AC8E68;
+    --c-brown: #FFD60A;
     color-scheme: dark;
   }
 }
@@ -73,9 +73,9 @@
   --c-orange: #FF9F0A;
   --c-red: #FF453A;
   --c-purple: #BF5AF2;
-  --c-pink: #FF375F;
+  --c-pink: #FF9CC4;
   --c-teal: #40C8E0;
-  --c-brown: #AC8E68;
+  --c-brown: #FFD60A;
   color-scheme: dark;
 }
 

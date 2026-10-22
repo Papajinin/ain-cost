@@ -4,7 +4,7 @@ const settingsOverlay = document.getElementById('settingsOverlay');
 const sCats = document.getElementById('sCats');
 const sMethods = document.getElementById('sMethods');
 const sRecur = document.getElementById('sRecur');
-const COLOR_KEYS = ['blue', 'green', 'orange', 'red', 'purple', 'pink', 'teal', 'brown'];
+const COLOR_KEYS = ['blue', 'green', 'red', 'brown', 'purple', 'orange', 'teal', 'pink']; // brown = 노랑
 const DRAG_SVG = '<svg viewBox="0 0 24 24"><path d="M4 8h16M4 12h16M4 16h16"/></svg>';
 
 let openId = null; // 고치는 중인 줄 (유형·결제수단·매달 나가는 돈 중 하나)
