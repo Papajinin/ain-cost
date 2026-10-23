@@ -522,9 +522,10 @@ select.f-date { text-align-last: center; }
 .splash-mark { display: flex; flex-direction: column; align-items: center; }
 .splash-disc { width: 46px; height: 46px; margin-bottom: 18px; }
 .splash-disc svg { display: block; width: 100%; height: 100%; overflow: visible; }
-.splash-bg { fill: var(--primary); transform-box: fill-box; transform-origin: center; animation: splash-spread .6s cubic-bezier(.22, .8, .3, 1) both; }
-.splash-draw { fill: none; stroke: #FFFFFF; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 100; stroke-dashoffset: 100; animation: splash-draw var(--d, .4s) ease-in-out var(--at, .55s) forwards; }
-.splash-stamp { fill: #FFFFFF; transform-box: fill-box; transform-origin: center; animation: splash-dot .3s cubic-bezier(.3, 1.5, .5, 1) both; }
+.splash-bg { fill: var(--primary); stroke: none; transform-box: fill-box; transform-origin: center; animation: splash-spread .6s cubic-bezier(.22, .8, .3, 1) both; }
+/* 그리기 전에는 숨김: 둥근 선 끝이 점처럼 먼저 보이는 것을 막음 */
+.splash-draw { fill: none; stroke: #FFFFFF; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 100; stroke-dashoffset: 100; animation: splash-draw var(--d, .4s) ease-in-out var(--at, .55s) both; }
+.splash-stamp { fill: #FFFFFF; stroke: none; transform-box: fill-box; transform-origin: center; animation: splash-dot .3s cubic-bezier(.3, 1.5, .5, 1) both; }
 .splash-word { font-size: 24px; line-height: 1; margin: 0 0 16px; animation: splash-up .5s ease-out 1s both; }
 .splash-dots { display: flex; gap: 7px; }
 .splash-dots i { width: 8px; height: 8px; border-radius: 4px; animation: splash-dot .3s cubic-bezier(.3, 1.6, .5, 1) both; }
@@ -533,7 +534,7 @@ select.f-date { text-align-last: center; }
 .splash-dots i:nth-child(2) { background: #00B74F; animation-delay: 1.4s; }
 .splash-dots i:nth-child(3) { background: #D31E3D; animation-delay: 1.5s; }
 @keyframes splash-spread { from { transform: scale(.55); opacity: 0; } 40% { opacity: 1; } to { transform: none; opacity: 1; } }
-@keyframes splash-draw { to { stroke-dashoffset: 0; } }
+@keyframes splash-draw { from { stroke-dashoffset: 100; opacity: 0; } 2% { opacity: 1; } to { stroke-dashoffset: 0; opacity: 1; } }
 @keyframes splash-dot { from { transform: scale(0); } to { transform: none; } }
 @keyframes splash-up { from { transform: translateY(8px); opacity: 0; } to { transform: none; opacity: 1; } }
 
