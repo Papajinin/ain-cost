@@ -1,4 +1,4 @@
-// AIN Cost 입력 창 v5: 지출 적기·고치기·지우기, 할부(회차 나누기), 매달 나가는 돈, 내역 자동완성(꾹 눌러 이름 바꾸기)
+// AIN Cost 입력 창 v6: 지출 적기·고치기·지우기, 할부(회차 나누기), 매달 나가는 돈, 내역 자동완성(꾹 눌러 이름 바꾸기)
 
 const sheetOverlay = document.getElementById('sheetOverlay');
 const sheetTitle = document.getElementById('sheetTitle');
@@ -79,18 +79,27 @@ function openSheet(recordId) {
 
   sheetOverlay.hidden = false;
   document.body.classList.add('locked');
-  if (!r) { fAmount.focus(); settleCaret(fAmount); } // 새로 적을 때만 바로 숫자 키패드
+  if (!r) { fAmount.focus({ preventScroll: true }); settleCaret(fAmount); } // 새로 적을 때만 바로 숫자 키패드
   requestAnimationFrame(() => sheetOverlay.classList.add('show'));
 }
 
 // 아이폰 Safari: 올라오는 중인 칸에 커서를 넣으면 깜빡이는 커서가 처음 자리(창 뒤)에 남을 때가 있어서,
 // 창이 다 올라온 뒤 커서 위치를 한 번 더 잡아 줌 (키보드는 누르는 순간 넣어야 열리므로 그때 한 번, 지금 한 번)
+// 처음 열 때 아이폰이 키보드를 띄우며 화면 전체를 밀어 버리면, 키보드가 다 올라온 뒤 원래 보던 위치로 되돌림
+let caretHold = null; // { el, y }
 function settleCaret(el) {
+  caretHold = { el, y: window.scrollY };
   setTimeout(() => {
     if (document.activeElement !== el) return;
     const n = el.value.length;
     try { el.setSelectionRange(n, n); } catch (e) {}
+    holdScroll();
   }, 320);
+  setTimeout(() => { if (caretHold && caretHold.el === el) caretHold = null; }, 1000);
+}
+function holdScroll() {
+  if (!caretHold || document.activeElement !== caretHold.el) return;
+  if (window.scrollY !== caretHold.y) window.scrollTo(window.scrollX, caretHold.y);
 }
 
 function closeSheet() {
@@ -542,8 +551,10 @@ sheetOverlay.addEventListener('click', e => { if (e.target === sheetOverlay) clo
 function revealFocused() {
   const el = document.activeElement;
   if (!el || !el.matches('input[type="text"]') || !el.closest('.sheet-scroll')) return;
+  // 창 안에서만 스크롤 (scrollIntoView는 화면 전체까지 밀어 버려서 쓰지 않음)
   const block = el.closest('.group') || el;
-  block.scrollIntoView({ block: 'start', behavior: 'smooth' });
+  const box = el.closest('.sheet-scroll');
+  box.scrollTo({ top: box.scrollTop + block.getBoundingClientRect().top - box.getBoundingClientRect().top, behavior: 'smooth' });
 }
 document.addEventListener('focusin', e => {
   if (!e.target.closest('.sheet-scroll') || !e.target.matches('input[type="text"]')) return;
@@ -557,6 +568,7 @@ if (window.visualViewport) {
     const kb = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
     document.documentElement.style.setProperty('--kb', kb + 'px');
     revealFocused();
+    holdScroll();
   };
   vv.addEventListener('resize', fit);
   vv.addEventListener('scroll', fit);
