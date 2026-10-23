@@ -1,4 +1,4 @@
-/* AIN Cost 스타일 v11 — 색·크기는 ../ain-todo/plan/design-guide.md(공통 디자인 가이드)를 따른다 */
+/* AIN Cost 스타일 v12 — 색·크기는 ../ain-todo/plan/design-guide.md(공통 디자인 가이드)를 따른다 */
 
 :root {
   --bg: #F2F2F7;
@@ -17,13 +17,13 @@
   --down: #1E7F35; /* 작년보다 덜 씀 (흰 카드 위 대비 5.1) */
 
   --c-blue: #007AFF;
-  --c-green: #248A3D;
+  --c-green: #28A745;
   --c-orange: #E06A00;
   --c-red: #D70015;
   --c-purple: #8944AB;
   --c-pink: #E85D9E;
   --c-teal: #0097A7;
-  --c-brown: #A88B00; /* brown 이름표 = 노랑 (예전 기록과 호환) */
+  --c-brown: #E5B800; /* brown 이름표 = 노랑 (예전 기록과 호환). 라이트 초록·노랑은 사용자가 밝게 고른 색 (가이드 예외) */
 
   --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Apple SD Gothic Neo", "Segoe UI", "Malgun Gothic", sans-serif;
   color-scheme: light;
@@ -505,8 +505,10 @@ select.f-date { text-align-last: center; }
 .action-btn.danger { color: var(--c-red); }
 .action-cancel { font-weight: 600; }
 
-/* ---------- 시작 화면 (스플래시) ---------- */
-/* 동전이 한 바퀴 돌고 → ₩가 톡 → 이름 → 색 점이 하나씩. 크기·간격·점 시점은 AIN Todo와 같게 */
+/* ---------- 시작 화면 (스플래시) — 세 앱 공통 순서 ----------
+   1. 파란 원이 작게 시작해서 부드럽게 펼쳐짐 (튕기지 않음) 0 ~ 0.6초
+   2. 원 안 그림 (앱마다 다름: Todo 체크, Cost ₩, Days 점 9개) 0.5 ~ 1.0초
+   3. 이름 1.0초, 4. 색 점 3개 1.3 ~ 1.5초. 크기·간격은 원 46, 이름 24, 점 8, 간격 18·16 */
 .splash {
   position: fixed; inset: 0; z-index: 60;
   display: grid; place-items: center;
@@ -514,38 +516,29 @@ select.f-date { text-align-last: center; }
   transition: opacity .35s ease;
 }
 .splash.hide { opacity: 0; pointer-events: none; }
-/* 앱이 파일을 다 읽고 첫 화면을 그릴 때까지는 멈춰 있다가(첫 장면: 작은 동전, 안 보임),
-   main.js가 .go를 붙이면 그때부터 움직임. 로딩 중에 돌기 시작하면 아이폰이 바빠서 중간 각도로 멈춰 보였음 */
-.splash:not(.go) .splash-face, .splash:not(.go) .splash-won, .splash:not(.go) .splash-word, .splash:not(.go) .splash-dots i { animation-play-state: paused; }
+/* 첫 화면을 그릴 때까지는 멈춰 있다가, main.js가 .go를 붙이면 움직임 (로딩 중에 움직이면 아이폰에서 끊겨 보임) */
+.splash:not(.go) .splash-bg, .splash:not(.go) .splash-draw, .splash:not(.go) .splash-stamp,
+.splash:not(.go) .splash-word, .splash:not(.go) .splash-dots i { animation-play-state: paused; }
 .splash-mark { display: flex; flex-direction: column; align-items: center; }
-.splash-coin { width: 46px; height: 46px; margin-bottom: 18px; perspective: 240px; }
-/* 그림(SVG)이 아니라 감싼 상자를 돌려야 앱이 바쁠 때도 끊기지 않음 */
-.splash-face {
-  position: relative; width: 100%; height: 100%;
-  will-change: transform, opacity; transform: translateZ(0);
-  animation: splash-flip .62s cubic-bezier(.25, .8, .35, 1) .05s both;
-}
-.splash-face svg { display: block; width: 100%; height: 100%; }
-.splash-face circle { fill: var(--primary); }
-.splash-won {
-  position: absolute; inset: 0;
-  opacity: 0; will-change: transform, opacity;
-  animation: splash-won .22s ease-out .6s forwards;
-}
-.splash-won svg { stroke: #FFFFFF; stroke-linecap: round; stroke-linejoin: round; }
-.splash-word { font-size: 24px; line-height: 1; margin: 0 0 16px; animation: splash-up .45s ease-out .75s both; }
+.splash-disc { width: 46px; height: 46px; margin-bottom: 18px; }
+.splash-disc svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.splash-bg { fill: var(--primary); transform-box: fill-box; transform-origin: center; animation: splash-spread .6s cubic-bezier(.22, .8, .3, 1) both; }
+.splash-draw { fill: none; stroke: #FFFFFF; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 100; stroke-dashoffset: 100; animation: splash-draw var(--d, .4s) ease-in-out var(--at, .55s) forwards; }
+.splash-stamp { fill: #FFFFFF; transform-box: fill-box; transform-origin: center; animation: splash-dot .3s cubic-bezier(.3, 1.5, .5, 1) both; }
+.splash-word { font-size: 24px; line-height: 1; margin: 0 0 16px; animation: splash-up .5s ease-out 1s both; }
 .splash-dots { display: flex; gap: 7px; }
 .splash-dots i { width: 8px; height: 8px; border-radius: 4px; animation: splash-dot .3s cubic-bezier(.3, 1.6, .5, 1) both; }
-/* 점 3개 = 세 테마 색 (블루·그린·레드 = 아빠·아내·딸), 화면 모드와 상관없이 같은 색 */
-.splash-dots i:nth-child(1) { background: #0071E3; animation-delay: 1s; }
-.splash-dots i:nth-child(2) { background: #00B74F; animation-delay: 1.1s; }
-.splash-dots i:nth-child(3) { background: #D31E3D; animation-delay: 1.2s; }
-@keyframes splash-flip { 0% { transform: translateZ(0) rotateY(0) scale(.5); opacity: 0; } 15% { opacity: 1; } 100% { transform: translateZ(0) rotateY(360deg) scale(1); opacity: 1; } }
-@keyframes splash-won { from { opacity: 0; transform: scale(.6); } to { opacity: 1; transform: none; } }
-@keyframes splash-up { from { transform: translateY(10px); opacity: 0; } to { transform: none; opacity: 1; } }
+/* 색 점은 세 테마 색 (테마와 상관없이 항상 같음) */
+.splash-dots i:nth-child(1) { background: #0071E3; animation-delay: 1.3s; }
+.splash-dots i:nth-child(2) { background: #00B74F; animation-delay: 1.4s; }
+.splash-dots i:nth-child(3) { background: #D31E3D; animation-delay: 1.5s; }
+@keyframes splash-spread { from { transform: scale(.55); opacity: 0; } 40% { opacity: 1; } to { transform: none; opacity: 1; } }
+@keyframes splash-draw { to { stroke-dashoffset: 0; } }
 @keyframes splash-dot { from { transform: scale(0); } to { transform: none; } }
+@keyframes splash-up { from { transform: translateY(8px); opacity: 0; } to { transform: none; opacity: 1; } }
+
 @media (prefers-reduced-motion: reduce) {
-  .splash-face, .splash-word, .splash-dots i { animation: none; }
-  .splash-won { animation: none; opacity: 1; }
+  .splash-bg, .splash-stamp, .splash-word, .splash-dots i { animation: none; }
+  .splash-draw { animation: none; stroke-dashoffset: 0; }
   .overlay, .sheet, .action-sheet, .sum-toggle svg, .st-head svg, .cat-row, .future-row svg, .st-slide { transition: none; }
 }

@@ -18,23 +18,15 @@
       if (s.accent === 'green' || s.accent === 'red') document.documentElement.setAttribute('data-accent', s.accent);
     } catch (e) {}
   </script>
-  <link rel="stylesheet" href="style.css?v=12">
+  <link rel="stylesheet" href="style.css?v=13">
 </head>
 <body>
-  <!-- 시작 화면 (앱을 새로 열 때만, 약 1.8초): 동전이 한 바퀴 돌고 ₩ -->
+  <!-- 시작 화면 (앱을 새로 열 때만, 약 2초): 파란 원이 펼쳐지고 → ₩가 그려짐(W 다음 가로줄) → 이름 → 색 점 3개 (세 앱 공통 순서)
+       예전에는 동전이 한 바퀴 돌았는데, 아이폰이 바쁠 때 계속 끊겨 보여서 그리기로 바꿈 (2026-10-23) -->
   <div class="splash" id="splash" aria-hidden="true">
     <div class="splash-mark">
-      <!-- 돌아가는 것은 그림을 감싼 상자 (아이폰에서 GPU로 부드럽게 돌도록) -->
-      <div class="splash-coin">
-        <div class="splash-face">
-          <svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" stroke="none"/></svg>
-          <div class="splash-won">
-            <svg viewBox="0 0 64 64">
-              <path d="M15.3 18.2 L22.7 45.1 L32 23.3 L41.3 45.1 L48.7 18.2" stroke-width="8.1"/>
-              <path d="M13.1 32 H50.9" stroke-width="6.1"/>
-            </svg>
-          </div>
-        </div>
+      <div class="splash-disc">
+        <svg viewBox="0 0 64 64"><circle class="splash-bg" cx="32" cy="32" r="32"/><path class="splash-draw" pathLength="100" d="M15.3 18.2 L22.7 45.1 L32 23.3 L41.3 45.1 L48.7 18.2" stroke-width="8.1" style="--at:.5s;--d:.42s"/><path class="splash-draw" pathLength="100" d="M13.1 32 H50.9" stroke-width="6.1" style="--at:.88s;--d:.18s"/></svg>
       </div>
       <div class="wordmark splash-word"><b>AIN</b> Cost</div>
       <div class="splash-dots"><i></i><i></i><i></i></div>
@@ -273,6 +265,6 @@
   <script src="stats.js?v=5"></script>
   <script src="settings.js?v=5"></script>
   <script src="sync.js?v=2"></script>
-  <script src="main.js?v=6"></script>
+  <script src="main.js?v=7"></script>
 </body>
 </html>

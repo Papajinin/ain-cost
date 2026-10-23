@@ -1,4 +1,4 @@
-// AIN Cost 시작 v6: 달 이동, 전체 그리기, 매달 나가는 돈 채우기, 통계·설정 열기, 시작 화면, 로그인
+// AIN Cost 시작 v7: 달 이동, 전체 그리기, 매달 나가는 돈 채우기, 통계·설정 열기, 시작 화면, 로그인
 
 const monthTitle = document.getElementById('monthTitle');
 const todayBtn = document.getElementById('todayBtn');
@@ -39,19 +39,19 @@ document.addEventListener('visibilitychange', () => {
   renderAll();
 });
 
-// 시작 화면: 첫 화면을 다 그린 뒤에 움직이기 시작 → 약 1.5초 움직이고 잠깐 두었다가 사라짐
-// 클라우드 연결(기록 수천 건 받기)은 움직임이 끝난 뒤에 시작해서 동전이 끊기지 않게
+// 시작 화면: 첫 화면을 다 그린 뒤에 움직이기 시작 → 약 1.8초 움직이고 잠깐 두었다가 사라짐 (세 앱 공통)
+// 클라우드 연결(기록 수천 건 받기)은 움직임이 거의 끝난 뒤에 시작해서 끊기지 않게
 let splashStarted = false;
 function startSplash() {
   if (splashStarted) return;
   splashStarted = true;
   const splash = document.getElementById('splash');
   splash.classList.add('go');
-  setTimeout(initCloud, 1500);
+  setTimeout(initCloud, 1700);
   setTimeout(() => {
     splash.classList.add('hide');
     setTimeout(() => splash.remove(), 400);
-  }, 1800);
+  }, 2000);
 }
 
 loadState(); // 기기에 저장된 내용으로 먼저 보여 주고, 클라우드에서 최신 내용을 받으면 다시 그림
