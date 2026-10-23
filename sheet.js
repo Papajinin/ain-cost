@@ -1,4 +1,4 @@
-// AIN Cost 입력 창 v3: 지출 적기·고치기·지우기, 할부(회차 나누기), 매달 나가는 돈, 내역 자동완성
+// AIN Cost 입력 창 v4: 지출 적기·고치기·지우기, 할부(회차 나누기), 매달 나가는 돈, 내역 자동완성(꾹 눌러 이름 바꾸기)
 
 const sheetOverlay = document.getElementById('sheetOverlay');
 const sheetTitle = document.getElementById('sheetTitle');
@@ -244,9 +244,35 @@ function renderSuggest() {
 
 fTitle.addEventListener('input', renderSuggest);
 fTitle.addEventListener('blur', () => setTimeout(() => { if (document.activeElement !== fTitle) hideSuggest(); }, 150));
-// 추천을 누를 때 내역 칸의 키보드가 내려가지 않게
-titleSuggest.addEventListener('pointerdown', e => { if (e.target.closest('.sg')) e.preventDefault(); });
+// 추천을 누를 때 내역 칸의 키보드가 내려가지 않게. 꾹(0.5초) 누르면 이름 바꾸기
+let sgPress = null;
+let sgSkipClick = false;
+titleSuggest.addEventListener('pointerdown', e => {
+  const b = e.target.closest('.sg');
+  if (!b) return;
+  e.preventDefault();
+  sgPress = { b, x: e.clientX, y: e.clientY };
+  b.classList.add('pressing');
+  sgPress.timer = setTimeout(() => {
+    b.classList.remove('pressing');
+    sgSkipClick = true;
+    sgPress = null;
+    openRename(titleSuggest.hits[Number(b.dataset.i)]);
+  }, 500);
+});
+// 손가락이 움직이면(추천 줄을 옆으로 미는 중) 꾹 누르기 취소
+function cancelSgPress(e) {
+  if (!sgPress) return;
+  if (e && e.type === 'pointermove' && Math.abs(e.clientX - sgPress.x) < 8 && Math.abs(e.clientY - sgPress.y) < 8) return;
+  clearTimeout(sgPress.timer);
+  sgPress.b.classList.remove('pressing');
+  sgPress = null;
+}
+document.addEventListener('pointermove', cancelSgPress);
+document.addEventListener('pointerup', () => cancelSgPress());
+document.addEventListener('pointercancel', () => cancelSgPress());
 titleSuggest.addEventListener('click', e => {
+  if (sgSkipClick) { sgSkipClick = false; return; }
   const b = e.target.closest('.sg');
   if (!b) return;
   const pick = titleSuggest.hits[Number(b.dataset.i)];
@@ -263,6 +289,71 @@ titleSuggest.addEventListener('click', e => {
     renderForm();
   }
 });
+
+// ---------- 내역 이름 바꾸기 ----------
+// 그 이름으로 적은 지난 기록(과 매달 나가는 돈)의 내역만 바꿈. 유형·금액·날짜는 그대로
+// 이미 있는 이름으로 바꾸면 둘이 하나로 합쳐짐
+const renameOverlay = document.getElementById('renameOverlay');
+const renameInput = document.getElementById('renameInput');
+const renameHint = document.getElementById('renameHint');
+const renameSave = document.getElementById('renameSave');
+let renameFrom = null; // { title, count }
+
+function openRename(entry) {
+  renameFrom = { title: entry.title, count: entry.count };
+  renameInput.value = entry.title;
+  updateRename();
+  showOverlay(renameOverlay);
+  setTimeout(() => { renameInput.focus(); renameInput.select(); }, 320);
+}
+function renameTarget() {
+  const to = renameInput.value.trim();
+  return to && to !== renameFrom.title ? to : '';
+}
+function updateRename() {
+  const to = renameTarget();
+  renameSave.disabled = !to;
+  const other = to && titleIndex.find(e => e.title === to);
+  renameHint.textContent = other
+    ? `'${to}'(${other.count}건)과 합쳐져서 ${other.count + renameFrom.count}건이 돼요.`
+    : `'${renameFrom.title}'로 적은 기록 ${renameFrom.count}건이 모두 새 이름으로 바뀌어요.`;
+}
+function closeRename() {
+  renameInput.blur();
+  hideOverlay(renameOverlay);
+  document.body.classList.add('locked'); // 아래 입력 창은 아직 열려 있음
+  setTimeout(() => fTitle.focus(), 320);
+}
+// '로'/'으로': 마지막 글자에 받침이 없거나 ㄹ이면 '로'
+function josaRo(word) {
+  const c = word.charCodeAt(word.length - 1) - 0xAC00;
+  if (c < 0 || c > 11171) return '(으)로';
+  const jong = c % 28;
+  return jong === 0 || jong === 8 ? '로' : '으로';
+}
+function askRename() {
+  const to = renameTarget();
+  if (!to) return;
+  const from = renameFrom.title;
+  renameInput.blur();
+  showActions(`'${from}' ${renameFrom.count}건을 '${to}'${josaRo(to)} 바꿀까요? 되돌릴 수 없어요.`, [
+    { label: '바꾸기', danger: true, fn: () => {
+      state.records.forEach(r => { if ((r.title || '').trim() === from) r.title = to; });
+      state.recurring.forEach(t => { if ((t.title || '').trim() === from) t.title = to; });
+      if (fTitle.value.trim() === from) fTitle.value = to;
+      saveState();
+      buildTitleIndex();
+      renderAll();
+      closeRename();
+      renderSuggest();
+    } }
+  ]);
+}
+renameInput.addEventListener('input', updateRename);
+renameInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); askRename(); } });
+renameSave.addEventListener('click', askRename);
+document.getElementById('renameCancel').addEventListener('click', closeRename);
+renameOverlay.addEventListener('click', e => { if (e.target === renameOverlay) closeRename(); });
 
 // ---------- 저장 ----------
 function validate() {

@@ -18,7 +18,7 @@
       if (s.accent === 'green' || s.accent === 'red') document.documentElement.setAttribute('data-accent', s.accent);
     } catch (e) {}
   </script>
-  <link rel="stylesheet" href="style.css?v=14">
+  <link rel="stylesheet" href="style.css?v=15">
 </head>
 <body>
   <!-- 시작 화면 (앱을 새로 열 때만, 약 2초): 파란 원이 펼쳐지고 → ₩가 그려짐(W 다음 가로줄) → 이름 → 색 점 3개 (세 앱 공통 순서)
@@ -159,6 +159,21 @@
     </div>
   </div>
 
+  <!-- 내역 이름 바꾸기 (자동완성 추천을 꾹 누르면) -->
+  <div class="overlay" id="renameOverlay" hidden>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="renameHeading">
+      <div class="sheet-top">
+        <button class="sheet-btn" id="renameCancel" type="button">취소</button>
+        <h2 id="renameHeading">이름 바꾸기</h2>
+        <button class="sheet-btn strong" id="renameSave" type="button">바꾸기</button>
+      </div>
+      <div class="sheet-scroll">
+        <div class="group"><input class="f-title" id="renameInput" type="text" enterkeyhint="done" autocomplete="off" aria-label="새 이름"></div>
+        <p class="hint" id="renameHint"></p>
+      </div>
+    </div>
+  </div>
+
   <!-- 통계 (아래에서 올라옴) -->
   <div class="overlay" id="statsOverlay" hidden>
     <div class="sheet tall" role="dialog" aria-modal="true" aria-labelledby="statsHeading">
@@ -261,7 +276,7 @@
   <script src="app.js?v=6"></script>
   <script src="repeat.js?v=2"></script>
   <script src="records.js?v=3"></script>
-  <script src="sheet.js?v=3"></script>
+  <script src="sheet.js?v=4"></script>
   <script src="stats.js?v=5"></script>
   <script src="settings.js?v=5"></script>
   <script src="sync.js?v=2"></script>

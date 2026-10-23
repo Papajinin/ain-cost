@@ -1,4 +1,4 @@
-/* AIN Cost 스타일 v12 — 색·크기는 ../ain-todo/plan/design-guide.md(공통 디자인 가이드)를 따른다 */
+/* AIN Cost 스타일 v13 — 색·크기는 ../ain-todo/plan/design-guide.md(공통 디자인 가이드)를 따른다 */
 
 :root {
   --bg: #F2F2F7;
@@ -272,7 +272,10 @@ body.locked { overflow: hidden; }
 /* 내역 자동완성: 친 글자가 들어간 지난 내역을 많이 쓴 순으로 (옆으로 밀어서 더 보기) */
 .suggest { display: flex; gap: 6px; overflow-x: auto; padding: 8px 14px 10px; border-top: 0.5px solid var(--line); scrollbar-width: none; }
 .suggest::-webkit-scrollbar { display: none; }
-.sg { flex: none; display: flex; align-items: center; gap: 4px; height: 32px; padding: 0 12px; border-radius: 16px; background: var(--fill); font-size: 14px; white-space: nowrap; }
+.sg { flex: none; display: flex; align-items: center; gap: 4px; height: 32px; padding: 0 12px; border-radius: 16px; background: var(--fill); font-size: 14px; white-space: nowrap; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; transition: transform .15s; }
+.sg.pressing { transform: scale(.94); }
+/* 이름 바꾸기 창은 입력 창 위에 */
+.overlay#renameOverlay { z-index: 36; }
 .sg mark { background: none; color: inherit; font-weight: 700; }
 .sg small { font-size: 12px; color: var(--sub); font-variant-numeric: tabular-nums; }
 
