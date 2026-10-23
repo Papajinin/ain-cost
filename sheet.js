@@ -1,4 +1,4 @@
-// AIN Cost 입력 창 v4: 지출 적기·고치기·지우기, 할부(회차 나누기), 매달 나가는 돈, 내역 자동완성(꾹 눌러 이름 바꾸기)
+// AIN Cost 입력 창 v5: 지출 적기·고치기·지우기, 할부(회차 나누기), 매달 나가는 돈, 내역 자동완성(꾹 눌러 이름 바꾸기)
 
 const sheetOverlay = document.getElementById('sheetOverlay');
 const sheetTitle = document.getElementById('sheetTitle');
@@ -79,8 +79,18 @@ function openSheet(recordId) {
 
   sheetOverlay.hidden = false;
   document.body.classList.add('locked');
-  if (!r) fAmount.focus(); // 새로 적을 때만 바로 숫자 키패드
+  if (!r) { fAmount.focus(); settleCaret(fAmount); } // 새로 적을 때만 바로 숫자 키패드
   requestAnimationFrame(() => sheetOverlay.classList.add('show'));
+}
+
+// 아이폰 Safari: 올라오는 중인 칸에 커서를 넣으면 깜빡이는 커서가 처음 자리(창 뒤)에 남을 때가 있어서,
+// 창이 다 올라온 뒤 커서 위치를 한 번 더 잡아 줌 (키보드는 누르는 순간 넣어야 열리므로 그때 한 번, 지금 한 번)
+function settleCaret(el) {
+  setTimeout(() => {
+    if (document.activeElement !== el) return;
+    const n = el.value.length;
+    try { el.setSelectionRange(n, n); } catch (e) {}
+  }, 320);
 }
 
 function closeSheet() {
