@@ -1,4 +1,4 @@
-// AIN Cost 공통 v6: 날짜·금액 도우미, 저장소, 상태, 화면 모드·테마 색, 아래에서 올라오는 창
+// AIN Cost 공통 v7: 날짜·금액 도우미, 저장소, 상태, 화면 모드·테마 색, 아래에서 올라오는 창
 
 const STORE_KEY = 'ainCost';
 const WEEK_NAMES = ['일', '월', '화', '수', '목', '금', '토'];
@@ -114,7 +114,7 @@ function showOverlay(el) {
 function hideOverlay(el) {
   el.classList.remove('show');
   document.body.classList.remove('locked');
-  setTimeout(() => { if (!el.classList.contains('show')) el.hidden = true; }, 300);
+  setTimeout(() => { if (!el.classList.contains('show')) el.hidden = true; }, 380); // 닫히는 움직임(0.35초)이 끝난 뒤
 }
 
 function newId() {
@@ -147,3 +147,54 @@ function isFree(r) {
 function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
 }
+
+// 선택 버튼 묶음(.seg): 고른 칸 표시가 옆으로 미끄러짐 (네 앱 공통 방식)
+// 어느 칸을 골랐는지는 화면마다 .on으로 정하고, 여기서는 그 칸을 따라가기만 함
+const segPos = new Map(); // 묶음을 다시 그려도 지난 자리에서 미끄러지게
+function segKey(seg) { return seg.id || seg.dataset.seg || seg.getAttribute('aria-label') || ''; }
+function moveSegThumb(thumb, pos, animate) {
+  if (!animate) thumb.style.transition = 'none';
+  thumb.style.width = pos.w + 'px';
+  thumb.style.transform = `translateX(${pos.x}px)`;
+  if (!animate) { void thumb.offsetWidth; thumb.style.transition = ''; }
+}
+function placeSegThumb(seg, animate) {
+  let thumb = seg.querySelector(':scope > .seg-thumb');
+  if (!thumb) {
+    thumb = document.createElement('span');
+    thumb.className = 'seg-thumb';
+    seg.prepend(thumb);
+    seg.classList.add('has-thumb');
+    segResize.observe(seg);
+    const last = segPos.get(segKey(seg));
+    if (last) { moveSegThumb(thumb, last, false); thumb.dataset.ready = '1'; } else animate = false;
+  }
+  const on = seg.querySelector(':scope > button.on');
+  thumb.hidden = !on;
+  if (!on || !on.offsetWidth) return; // 닫힌 창 안: 보일 때 segResize가 다시 부름
+  const pos = { x: on.offsetLeft, w: on.offsetWidth };
+  moveSegThumb(thumb, pos, animate && thumb.dataset.ready === '1');
+  thumb.dataset.ready = '1';
+  if (segKey(seg)) segPos.set(segKey(seg), pos);
+}
+const segResize = new ResizeObserver(list => list.forEach(e => placeSegThumb(e.target, true)));
+new MutationObserver(list => {
+  const segs = new Set();
+  for (const m of list) {
+    if (m.type === 'attributes') {
+      const p = m.target.parentElement;
+      if (p && p.classList.contains('seg')) segs.add(p);
+      continue;
+    }
+    if (m.target.classList && m.target.classList.contains('seg')) segs.add(m.target);
+    m.addedNodes.forEach(n => {
+      if (n.nodeType !== 1) return;
+      if (n.classList.contains('seg')) segs.add(n);
+      n.querySelectorAll('.seg').forEach(s => segs.add(s));
+    });
+  }
+  segs.forEach(s => placeSegThumb(s, true));
+}).observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['class'] });
+document.querySelectorAll('.seg').forEach(s => placeSegThumb(s, false));
+// 아이폰 사파리는 이게 있어야 누르는 동안(:active) 모양이 바뀜
+document.addEventListener('touchstart', () => {}, { passive: true });

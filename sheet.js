@@ -1,4 +1,4 @@
-// AIN Cost 입력 창 v6: 지출 적기·고치기·지우기, 할부(회차 나누기), 매달 나가는 돈, 내역 자동완성(꾹 눌러 이름 바꾸기)
+// AIN Cost 입력 창 v7: 지출 적기·고치기·지우기, 할부(회차 나누기), 매달 나가는 돈, 내역 자동완성(꾹 눌러 이름 바꾸기)
 
 const sheetOverlay = document.getElementById('sheetOverlay');
 const sheetTitle = document.getElementById('sheetTitle');
@@ -323,7 +323,7 @@ function openRename(entry) {
   renameInput.value = entry.title;
   updateRename();
   showOverlay(renameOverlay);
-  setTimeout(() => { renameInput.focus(); renameInput.select(); }, 320);
+  setTimeout(() => { renameInput.focus(); renameInput.select(); }, 370);
 }
 function renameTarget() {
   const to = renameInput.value.trim();
@@ -341,7 +341,7 @@ function closeRename() {
   renameInput.blur();
   hideOverlay(renameOverlay);
   document.body.classList.add('locked'); // 아래 입력 창은 아직 열려 있음
-  setTimeout(() => fTitle.focus(), 320);
+  setTimeout(() => fTitle.focus(), 370);
 }
 // '로'/'으로': 마지막 글자에 받침이 없거나 ㄹ이면 '로'
 function josaRo(word) {
@@ -528,7 +528,7 @@ function showActions(msg, list) {
 
 function hideActions() {
   actionOverlay.classList.remove('show');
-  setTimeout(() => { if (!actionOverlay.classList.contains('show')) actionOverlay.hidden = true; }, 260);
+  setTimeout(() => { if (!actionOverlay.classList.contains('show')) actionOverlay.hidden = true; }, 380);
 }
 
 actionBtns.addEventListener('click', e => {
