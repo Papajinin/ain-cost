@@ -1,4 +1,4 @@
-/* AIN Cost 스타일 v16 — 색·크기는 ../ain-todo/plan/design-guide.md(공통 디자인 가이드)를 따른다 */
+/* AIN Cost 스타일 v17 — 색·크기는 ../ain-todo/plan/design-guide.md(공통 디자인 가이드)를 따른다 */
 
 :root {
   --bg: #F2F2F7;
@@ -496,6 +496,12 @@ select.f-date { text-align-last: center; }
 .wordmark.big { font-size: 32px; }
 .login-sub { margin: 0 0 20px; font-size: 15px; color: var(--sub); }
 .login-error { margin: 4px 0 0; text-align: center; }
+/* 잠금 화면: 로그인 화면과 같은 틀, 그 위에 덮음 */
+.lock-screen { z-index: 50; }
+.lock-ic { width: 52px; height: 52px; border-radius: 26px; background: var(--fill); color: var(--sub); display: grid; place-items: center; margin-bottom: 4px; }
+.lock-ic svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.lock-screen .text-btn { height: 40px; padding: 0 10px; font-size: 15px; color: var(--primary-text); }
+.seg button:disabled { opacity: .4; }
 
 /* ---------- 선택 창 ---------- */
 .overlay#actionOverlay { z-index: 40; }

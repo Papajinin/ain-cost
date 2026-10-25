@@ -1,4 +1,4 @@
-// AIN Cost 시작 v7: 달 이동, 전체 그리기, 매달 나가는 돈 채우기, 통계·설정 열기, 시작 화면, 로그인
+// AIN Cost 시작 v8: 달 이동, 전체 그리기, 매달 나가는 돈 채우기, 통계·설정 열기, 시작 화면, 로그인
 
 const monthTitle = document.getElementById('monthTitle');
 const todayBtn = document.getElementById('todayBtn');
@@ -51,6 +51,7 @@ function startSplash() {
   setTimeout(() => {
     splash.classList.add('hide');
     setTimeout(() => splash.remove(), 400);
+    lockStart(); // 잠금이 켜져 있으면 Face ID·지문 확인 창을 저절로 띄움
   }, 2000);
 }
 
