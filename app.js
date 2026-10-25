@@ -1,4 +1,4 @@
-// AIN Cost 공통 v7: 날짜·금액 도우미, 저장소, 상태, 화면 모드·테마 색, 아래에서 올라오는 창
+// AIN Cost 공통 v8: 날짜·금액 도우미, 저장소, 상태, 화면 모드·테마 색, 아래에서 올라오는 창
 
 const STORE_KEY = 'ainCost';
 const WEEK_NAMES = ['일', '월', '화', '수', '목', '금', '토'];
@@ -52,7 +52,7 @@ let state = {
   methods: DEFAULT_METHODS,
   records: [],
   recurring: [], // 매달 나가는 돈 (repeat.js)
-  // theme: light | dark | auto (기기마다), accent: blue | green | red (계정마다)
+  // theme: light | dark | auto (기기마다), accent: blue | green | red | yellow (계정마다)
   settings: { theme: 'auto', accent: 'blue' }
 };
 
@@ -101,7 +101,7 @@ function applyTheme() {
   const root = document.documentElement;
   if (mode === 'light' || mode === 'dark') root.setAttribute('data-theme', mode);
   else root.removeAttribute('data-theme');
-  if (accent === 'green' || accent === 'red') root.setAttribute('data-accent', accent);
+  if (accent === 'green' || accent === 'red' || accent === 'yellow') root.setAttribute('data-accent', accent);
   else root.removeAttribute('data-accent');
 }
 

@@ -1,4 +1,4 @@
-/* AIN Cost 스타일 v14 — 색·크기는 ../ain-todo/plan/design-guide.md(공통 디자인 가이드)를 따른다 */
+/* AIN Cost 스타일 v15 — 색·크기는 ../ain-todo/plan/design-guide.md(공통 디자인 가이드)를 따른다 */
 
 :root {
   --bg: #F2F2F7;
@@ -82,17 +82,21 @@
   color-scheme: dark;
 }
 
-/* 테마 색 (설정에서 고름, 계정마다 기억): 블루(기본) · 그린(팬톤 7481 C) · 레드
+/* 테마 색 (설정에서 고름, 계정마다 기억): 블루(기본) · 그린(팬톤 7481 C) · 레드 · 옐로
    - 버튼·막대·스위치·동전은 --primary, 흰 바탕 위 작은 글씨·아이콘은 --primary-text
-   - 그린 버튼의 흰 글씨는 대비 2.66으로 기준(4.5)보다 낮음: 사용자가 고른 색이라 예외 (디자인 가이드 참고) */
+   - 그린 버튼의 흰 글씨는 대비 2.66으로 기준(4.5)보다 낮음: 사용자가 고른 색이라 예외 (디자인 가이드 참고)
+   - 옐로 버튼의 흰 글씨도 대비 1.51로 낮음: 네 테마 버튼을 같게 하려고 사용자가 고른 예외. 라이트의 작은 글씨·아이콘만 진한 황토색 */
 :root[data-accent="green"] { --primary: #00B74F; --primary-text: #007B33; }
 :root[data-accent="red"] { --primary: #D31E3D; --primary-text: #D31E3D; }
+:root[data-accent="yellow"] { --primary: #FFCC00; --primary-text: #8C6500; }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"])[data-accent="green"] { --primary-text: #00B74F; }
   :root:not([data-theme="light"])[data-accent="red"] { --primary-text: #FF4048; }
+  :root:not([data-theme="light"])[data-accent="yellow"] { --primary-text: #FFCC00; }
 }
 :root[data-theme="dark"][data-accent="green"] { --primary-text: #00B74F; }
 :root[data-theme="dark"][data-accent="red"] { --primary-text: #FF4048; }
+:root[data-theme="dark"][data-accent="yellow"] { --primary-text: #FFCC00; }
 
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
@@ -536,10 +540,11 @@ select.f-date { text-align-last: center; }
 .splash-word { font-size: 24px; line-height: 1; margin: 0 0 16px; animation: splash-up .5s ease-out 1s both; }
 .splash-dots { display: flex; gap: 7px; }
 .splash-dots i { width: 8px; height: 8px; border-radius: 4px; animation: splash-dot .3s cubic-bezier(.3, 1.6, .5, 1) both; }
-/* 색 점은 세 테마 색 (테마와 상관없이 항상 같음) */
+/* 색 점은 네 테마 색 (테마와 상관없이 항상 같음) */
 .splash-dots i:nth-child(1) { background: #0071E3; animation-delay: 1.3s; }
 .splash-dots i:nth-child(2) { background: #00B74F; animation-delay: 1.4s; }
 .splash-dots i:nth-child(3) { background: #D31E3D; animation-delay: 1.5s; }
+.splash-dots i:nth-child(4) { background: #FFCC00; animation-delay: 1.6s; }
 @keyframes splash-spread { from { transform: scale(.55); opacity: 0; } 40% { opacity: 1; } to { transform: none; opacity: 1; } }
 @keyframes splash-draw { from { stroke-dashoffset: 100; opacity: 0; } 2% { opacity: 1; } to { stroke-dashoffset: 0; opacity: 1; } }
 @keyframes splash-dot { from { transform: scale(0); } to { transform: none; } }
