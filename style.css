@@ -1,4 +1,4 @@
-/* AIN Cost 스타일 v15 — 색·크기는 ../ain-todo/plan/design-guide.md(공통 디자인 가이드)를 따른다 */
+/* AIN Cost 스타일 v16 — 색·크기는 ../ain-todo/plan/design-guide.md(공통 디자인 가이드)를 따른다 */
 
 :root {
   --bg: #F2F2F7;
@@ -85,10 +85,10 @@
 /* 테마 색 (설정에서 고름, 계정마다 기억): 블루(기본) · 그린(팬톤 7481 C) · 레드 · 옐로
    - 버튼·막대·스위치·동전은 --primary, 흰 바탕 위 작은 글씨·아이콘은 --primary-text
    - 그린 버튼의 흰 글씨는 대비 2.66으로 기준(4.5)보다 낮음: 사용자가 고른 색이라 예외 (디자인 가이드 참고)
-   - 옐로 버튼의 흰 글씨도 대비 1.51로 낮음: 네 테마 버튼을 같게 하려고 사용자가 고른 예외. 라이트의 작은 글씨·아이콘만 진한 황토색 */
+   - 옐로 버튼의 흰 글씨도 대비 1.51로 낮음: 네 테마 버튼을 같게 하려고 사용자가 고른 예외. 라이트의 작은 글씨·아이콘은 조금 진한 노랑(대비 1.84, 진한 황토색은 다크골드처럼 보여서 사용자가 고름) */
 :root[data-accent="green"] { --primary: #00B74F; --primary-text: #007B33; }
 :root[data-accent="red"] { --primary: #D31E3D; --primary-text: #D31E3D; }
-:root[data-accent="yellow"] { --primary: #FFCC00; --primary-text: #8C6500; }
+:root[data-accent="yellow"] { --primary: #FFCC00; --primary-text: #EBB800; }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"])[data-accent="green"] { --primary-text: #00B74F; }
   :root:not([data-theme="light"])[data-accent="red"] { --primary-text: #FF4048; }
