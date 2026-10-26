@@ -1,4 +1,4 @@
-/* AIN Cost 스타일 v17 — 색·크기는 ../ain-todo/plan/design-guide.md(공통 디자인 가이드)를 따른다 */
+/* AIN Cost 스타일 v18 — 색·크기는 ../ain-todo/plan/design-guide.md(공통 디자인 가이드)를 따른다 */
 
 :root {
   --bg: #F2F2F7;
@@ -163,9 +163,14 @@ svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; 
 .sum-compare .down { color: var(--down); }
 .sum-compare .up { color: var(--up); }
 
-.sum-cats { padding: 4px 16px 12px; display: flex; flex-direction: column; gap: 8px; border-top: 0.5px solid var(--line); }
-.sc-head { font-size: 12px; color: var(--sub); padding-top: 8px; }
-.sc-row { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+.sum-cats { padding: 4px 16px 12px; display: flex; flex-direction: column; gap: 2px; border-top: 0.5px solid var(--line); }
+.sc-head { font-size: 12px; color: var(--sub); padding: 8px 0 4px; }
+/* 골라 보기: 줄을 누르면 골라짐 (배경 + ✓) */
+.sc-row { display: flex; align-items: center; gap: 8px; font-size: 14px; min-height: 34px; margin: 0 -8px; padding: 0 8px; border-radius: 8px; text-align: left; transition: background-color var(--t) var(--ease); }
+.sc-row.on { background: var(--fill); font-weight: 600; }
+.sc-row.on .sc-track { background: var(--card); }
+.sc-ck { flex: none; width: 14px; height: 14px; color: var(--primary-text); }
+.sc-ck svg { display: block; width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
 .sc-name { width: 52px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .sc-track { flex: 1; height: 6px; border-radius: 3px; background: var(--fill); }
 .sc-track i { display: block; height: 6px; border-radius: 3px; }
@@ -184,6 +189,11 @@ svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; 
 .day-head h3 { margin: 0; font-size: 17px; font-weight: 700; }
 .day-head span { font-size: 14px; color: var(--sub); font-variant-numeric: tabular-nums; }
 .list { background: var(--card); margin: 0 16px; border-radius: 14px; overflow: hidden; }
+/* 골라 보기 중: 목록 위 표시 */
+.pick-bar { margin: 14px 16px 0; display: flex; align-items: center; gap: 10px; background: var(--card); border-radius: 14px; padding: 10px 12px 10px 14px; }
+.pb-body { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.pb-body b { font-size: 15px; font-weight: 700; overflow-wrap: anywhere; }
+.pb-clear { flex: none; height: 32px; padding: 0 12px; border-radius: 16px; background: var(--fill); color: var(--primary-text); font-size: 14px; font-weight: 600; }
 .empty { text-align: center; color: var(--sub); padding: 48px 0; margin: 0; }
 
 .rec {

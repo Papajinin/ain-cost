@@ -61,7 +61,8 @@ const ui = {
   today: todayStr(),
   month: monthOf(todayStr()),
   catsOpen: false,
-  futureOpen: false // 이번 달의 내일 이후 기록 펼침
+  futureOpen: false, // 이번 달의 내일 이후 기록 펼침
+  pick: { cats: [], methods: [] } // 골라 보기: 고른 유형·결제수단 (앱을 켤 때마다 비어 있음)
 };
 
 function loadState() {
