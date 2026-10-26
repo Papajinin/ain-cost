@@ -7,8 +7,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="AIN Cost">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png">
-  <link rel="icon" type="image/png" href="apple-touch-icon.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=2">
+  <link rel="icon" type="image/png" href="apple-touch-icon.png?v=2">
   <title>AIN Cost</title>
   <script>
     // 저장된 화면 모드와 테마 색을 먼저 적용해서 색이 깜빡이지 않게
@@ -21,7 +21,7 @@
   <script>
     // 새 버전 스스로 받기 (네 앱 공통): 켤 때 서버의 version.txt 숫자가 아래 APP_VERSION보다 크면
     // 새 화면 파일을 받아 한 번 새로고침. 올릴 때마다 두 숫자를 같이 올린다
-    const APP_VERSION = 2;
+    const APP_VERSION = 3;
     (function () {
       const t0 = Date.now();
       const key = 'ainCost.updated'; // 같은 버전으로 두 번 새로고침하지 않게
@@ -258,7 +258,7 @@
           <button type="button" data-v="off">끄기</button>
           <button type="button" data-v="on">켜기</button>
         </div></div></div>
-        <p class="hint" id="lockHint">켜면 앱을 열 때, 그리고 1분 넘게 내려 두었다 돌아올 때 Face ID·지문을 물어봐요. 이 기기에만 적용돼요. 켤 때 아이폰이 패스키 저장을 물으면 ‘계속’을 눌러 주세요.</p>
+        <p class="hint" id="lockHint">켜면 앱을 열 때, 그리고 1분 넘게 내려 두었다 돌아올 때 Face ID·지문을 물어봐요. 이 기기에만 적용돼요. 켤 때 아이폰이 패스키 저장을 물으면 지문이나 얼굴로 확인해 주세요.</p>
 
         <div class="group-label">계정</div>
         <div class="group">
@@ -319,7 +319,7 @@
   <script src="stats.js?v=5"></script>
   <script src="settings.js?v=5"></script>
   <script src="sync.js?v=2"></script>
-  <script src="lock.js?v=1"></script>
+  <script src="lock.js?v=2"></script>
   <script src="main.js?v=8"></script>
 </body>
 </html>
