@@ -1,4 +1,4 @@
-// AIN Cost 통계 v5: 월(유형별, 선택 지출 안에서, 할부) / 연(월별 흐름, 작년과 비교), 카드 접기·펼치기, 좌우로 밀어서 넘기기
+// AIN Cost 통계 v6: 월(유형별, 선택 지출 안에서, 할부) / 연(월별 흐름, 작년과 비교 — 둘 다 전체·필수·선택·유형), 카드 접기·펼치기, 좌우로 밀어서 넘기기
 
 const statsOverlay = document.getElementById('statsOverlay');
 const statsPeriod = document.getElementById('statsPeriod');
@@ -18,7 +18,8 @@ const st = {
   catId: null,
   unit: 'amt',      // amt | pct
   pick: 0,          // 연 그래프에서 고른 달 (0~11)
-  table: 'all'      // all | must | free
+  table: 'all',     // all | must | free | cat
+  tableCat: null    // 작년과 비교 표에서 고른 유형 (월별 흐름과 따로 고름)
 };
 
 // ---------- 열기·닫기 ----------
@@ -27,6 +28,7 @@ function openStats() {
   st.year = Number(ui.month.slice(0, 4));
   st.pick = Number(ui.month.slice(5)) - 1;
   if (!state.categories.some(c => c.id === st.catId)) st.catId = state.categories[0].id;
+  if (!state.categories.some(c => c.id === st.tableCat)) st.tableCat = state.categories[0].id;
   renderStats();
   showOverlay(statsOverlay);
 }
@@ -99,6 +101,12 @@ function seg(name, list, value, small) {
   return `<div class="seg${small ? ' small' : ' wide'}" data-seg="${name}">` +
     list.map(([v, label]) => `<button type="button" data-v="${v}" class="${v === value ? 'on' : ''}" aria-pressed="${v === value}">${label}</button>`).join('') +
     '</div>';
+}
+
+// 유형 고르기 칩 (월별 흐름: data-cat, 작년과 비교: data-tcat)
+function catChips(sel, attr) {
+  return '<div class="cat-chips wrap st-cats">' + state.categories.map(c =>
+    `<button type="button" class="cat-chip small${c.id === sel ? ' on' : ''}" data-${attr}="${c.id}" aria-pressed="${c.id === sel}"><i style="background:var(--c-${c.color})"></i>${escapeHtml(c.name)}</button>`).join('') + '</div>';
 }
 
 function renderStats() {
@@ -213,8 +221,7 @@ function renderYearCards() {
   else detail = `올해 ${tp.count ? fmt(vals[p]) : '기록 없음'} · 작년 ${lp.count ? fmt(prev[p]) : '기록 없음'}`;
 
   const flow = seg('mode', [['all', '전체'], ['must', '필수'], ['free', '선택'], ['cat', '유형']], st.mode) +
-    (st.mode === 'cat' ? '<div class="cat-chips wrap st-cats">' + state.categories.map(c =>
-      `<button type="button" class="cat-chip small${c.id === st.catId ? ' on' : ''}" data-cat="${c.id}" aria-pressed="${c.id === st.catId}"><i style="background:var(--c-${c.color})"></i>${escapeHtml(c.name)}</button>`).join('') + '</div>' : '') +
+    (st.mode === 'cat' ? catChips(st.catId, 'cat') : '') +
     `<div class="fl-top"><div class="fl-legend">${legend}${hasPrev ? '<span><i class="line"></i>작년</span>' : ''}</div>${seg('unit', [['amt', '금액'], ['pct', '비율']], st.unit, true)}</div>
     <div class="fl-chart">
       <div class="fl-ticks">${ticks}</div>
@@ -228,7 +235,7 @@ function renderYearCards() {
     <div class="fl-detail"><b>${p + 1}월 · ${escapeHtml(label)}${pct ? ' (전체 중 비율)' : ''}</b><span class="num">${detail}</span></div>`;
 
   // ----- 작년과 비교 표 -----
-  const pickV = t => (st.table === 'free' ? t.free : st.table === 'must' ? t.must : t.total);
+  const pickV = t => (st.table === 'free' ? t.free : st.table === 'must' ? t.must : st.table === 'cat' ? t.byCat[st.tableCat] || 0 : t.total);
   let sa = 0, sb = 0;
   const rows = now.map((t, i) => {
     const has = t.count > 0;
@@ -240,14 +247,15 @@ function renderYearCards() {
   const td = sa - sb;
   const sumRow = lastIdx >= 0 && last.some(t => t.count)
     ? `<tr class="sum"><th scope="row">${range}</th><td>${sa.toLocaleString('ko-KR')}</td><td class="sub">${sb.toLocaleString('ko-KR')}</td><td${diffClass(td)}>${signed(td)}</td></tr>` : '';
-  const table = `<div class="st-table-top">${seg('table', [['all', '전체'], ['must', '필수'], ['free', '선택']], st.table, true)}</div>
+  const table = `<div class="st-table-top">${seg('table', [['all', '전체'], ['must', '필수'], ['free', '선택'], ['cat', '유형']], st.table, true)}</div>
+    ${st.table === 'cat' ? catChips(st.tableCat, 'tcat') : ''}
     <div class="st-table-wrap"><table class="st-table num"><thead><tr><th>월</th><th>${st.year}년</th><th>${st.year - 1}년</th><th>작년보다</th></tr></thead><tbody>${rows}${sumRow}</tbody></table></div>
     <p class="st-note">−는 작년보다 덜 쓴 금액, +는 더 쓴 금액이에요.</p>`;
 
   let tableHint = '';
   if (sumRow) {
-    // 표에서 고른 것(전체·필수·선택)에 맞춰 요약
-    const name = { all: '전체', must: '필수', free: '선택' }[st.table] + ' 지출';
+    // 표에서 고른 것(전체·필수·선택·유형)에 맞춰 요약
+    const name = { all: '전체', must: '필수', free: '선택', cat: (findCat(st.tableCat) || {}).name || '' }[st.table] + ' 지출';
     const fd = sa - sb;
     tableHint = fd === 0 ? `${name} 작년과 같아요` : `${name} ${shortWon(Math.abs(fd))}원 ${fd > 0 ? '늘었어요' : '줄었어요'}`;
   }
@@ -272,6 +280,8 @@ statsOverlay.addEventListener('click', e => {
   }
   const chip = e.target.closest('[data-cat]');
   if (chip) { st.catId = chip.dataset.cat; return renderStats(); }
+  const tchip = e.target.closest('[data-tcat]');
+  if (tchip) { st.tableCat = tchip.dataset.tcat; return renderStats(); }
   const bar = e.target.closest('.fl-bar');
   if (bar) { st.pick = Number(bar.dataset.i); return renderStats(); }
 });
