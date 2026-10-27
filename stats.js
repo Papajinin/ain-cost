@@ -234,7 +234,7 @@ function renderYearCards() {
     <div class="fl-months num">${months.map((m, i) => `<span class="${st.pick === i ? 'on' : ''}">${i + 1}</span>`).join('')}</div>
     <div class="fl-detail"><b>${p + 1}월 · ${escapeHtml(label)}${pct ? ' (전체 중 비율)' : ''}</b><span class="num">${detail}</span></div>`;
 
-  // ----- 작년과 비교 표 -----
+  // ----- 작년과 비교 표 (작년 → 올해 → 차이, 시간 순서) -----
   const pickV = t => (st.table === 'free' ? t.free : st.table === 'must' ? t.must : st.table === 'cat' ? t.byCat[st.tableCat] || 0 : t.total);
   let sa = 0, sb = 0;
   const rows = now.map((t, i) => {
@@ -242,14 +242,14 @@ function renderYearCards() {
     if (has) { sa += pickV(t); sb += pickV(last[i]); }
     const d = pickV(t) - pickV(last[i]);
     const show = has && last[i].count;
-    return `<tr><th scope="row">${i + 1}월</th><td>${has ? pickV(t).toLocaleString('ko-KR') : '—'}</td><td class="sub">${last[i].count ? pickV(last[i]).toLocaleString('ko-KR') : '—'}</td><td${show ? diffClass(d) : ''}>${show ? signed(d) : ''}</td></tr>`;
+    return `<tr><th scope="row">${i + 1}월</th><td class="sub">${last[i].count ? pickV(last[i]).toLocaleString('ko-KR') : '—'}</td><td>${has ? pickV(t).toLocaleString('ko-KR') : '—'}</td><td${show ? diffClass(d) : ''}>${show ? signed(d) : ''}</td></tr>`;
   }).join('');
   const td = sa - sb;
   const sumRow = lastIdx >= 0 && last.some(t => t.count)
-    ? `<tr class="sum"><th scope="row">${range}</th><td>${sa.toLocaleString('ko-KR')}</td><td class="sub">${sb.toLocaleString('ko-KR')}</td><td${diffClass(td)}>${signed(td)}</td></tr>` : '';
+    ? `<tr class="sum"><th scope="row">${range}</th><td class="sub">${sb.toLocaleString('ko-KR')}</td><td>${sa.toLocaleString('ko-KR')}</td><td${diffClass(td)}>${signed(td)}</td></tr>` : '';
   const table = `<div class="st-table-top">${seg('table', [['all', '전체'], ['must', '필수'], ['free', '선택'], ['cat', '유형']], st.table, true)}</div>
     ${st.table === 'cat' ? statCatChips(st.tableCat, 'tcat') : ''}
-    <div class="st-table-wrap"><table class="st-table num"><thead><tr><th>월</th><th>${st.year}년</th><th>${st.year - 1}년</th><th>작년보다</th></tr></thead><tbody>${rows}${sumRow}</tbody></table></div>
+    <div class="st-table-wrap"><table class="st-table num"><thead><tr><th>월</th><th>${st.year - 1}년</th><th>${st.year}년</th><th>작년보다</th></tr></thead><tbody>${rows}${sumRow}</tbody></table></div>
     <p class="st-note">−는 작년보다 덜 쓴 금액, +는 더 쓴 금액이에요.</p>`;
 
   let tableHint = '';
