@@ -104,7 +104,7 @@ function seg(name, list, value, small) {
 }
 
 // 유형 고르기 칩 (월별 흐름: data-cat, 작년과 비교: data-tcat)
-function catChips(sel, attr) {
+function statCatChips(sel, attr) {
   return '<div class="cat-chips wrap st-cats">' + state.categories.map(c =>
     `<button type="button" class="cat-chip small${c.id === sel ? ' on' : ''}" data-${attr}="${c.id}" aria-pressed="${c.id === sel}"><i style="background:var(--c-${c.color})"></i>${escapeHtml(c.name)}</button>`).join('') + '</div>';
 }
@@ -221,7 +221,7 @@ function renderYearCards() {
   else detail = `올해 ${tp.count ? fmt(vals[p]) : '기록 없음'} · 작년 ${lp.count ? fmt(prev[p]) : '기록 없음'}`;
 
   const flow = seg('mode', [['all', '전체'], ['must', '필수'], ['free', '선택'], ['cat', '유형']], st.mode) +
-    (st.mode === 'cat' ? catChips(st.catId, 'cat') : '') +
+    (st.mode === 'cat' ? statCatChips(st.catId, 'cat') : '') +
     `<div class="fl-top"><div class="fl-legend">${legend}${hasPrev ? '<span><i class="line"></i>작년</span>' : ''}</div>${seg('unit', [['amt', '금액'], ['pct', '비율']], st.unit, true)}</div>
     <div class="fl-chart">
       <div class="fl-ticks">${ticks}</div>
@@ -248,7 +248,7 @@ function renderYearCards() {
   const sumRow = lastIdx >= 0 && last.some(t => t.count)
     ? `<tr class="sum"><th scope="row">${range}</th><td>${sa.toLocaleString('ko-KR')}</td><td class="sub">${sb.toLocaleString('ko-KR')}</td><td${diffClass(td)}>${signed(td)}</td></tr>` : '';
   const table = `<div class="st-table-top">${seg('table', [['all', '전체'], ['must', '필수'], ['free', '선택'], ['cat', '유형']], st.table, true)}</div>
-    ${st.table === 'cat' ? catChips(st.tableCat, 'tcat') : ''}
+    ${st.table === 'cat' ? statCatChips(st.tableCat, 'tcat') : ''}
     <div class="st-table-wrap"><table class="st-table num"><thead><tr><th>월</th><th>${st.year}년</th><th>${st.year - 1}년</th><th>작년보다</th></tr></thead><tbody>${rows}${sumRow}</tbody></table></div>
     <p class="st-note">−는 작년보다 덜 쓴 금액, +는 더 쓴 금액이에요.</p>`;
 
