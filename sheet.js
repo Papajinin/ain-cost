@@ -1,4 +1,4 @@
-// AIN Cost 입력 창 v7: 지출 적기·고치기·지우기, 할부(회차 나누기), 매달 나가는 돈, 내역 자동완성(꾹 눌러 이름 바꾸기)
+// AIN Cost 입력 창 v8: 지출 적기·고치기·지우기, 할부(회차 나누기), 매달 나가는 돈, 내역 자동완성(꾹 눌러 이름 바꾸기), 내역 먼저 → 최근 금액 채우기
 
 const sheetOverlay = document.getElementById('sheetOverlay');
 const sheetTitle = document.getElementById('sheetTitle');
@@ -38,6 +38,7 @@ let original = null;  // 고치는 기록 (새로 적을 때는 null)
 // kind: new(새로) | plain(보통 기록) | inst(할부 회차) | recur(매달 나가는 돈으로 들어온 기록)
 let kind = 'new';
 let titleIndex = []; // 지난 내역 이름: [{ title, count, last(가장 최근 기록) }] 많이 쓴 순
+let amountAuto = false; // 금액을 내역에 따라 앱이 채웠는지 (직접 고치면 false → 더는 바꾸지 않음)
 
 // ---------- 열기·닫기 ----------
 function defaultDate() {
@@ -70,6 +71,7 @@ function openSheet(recordId) {
   fAmount.value = r ? r.amount.toLocaleString('ko-KR') : '';
   fTitle.value = r ? r.title : '';
   fMemo.value = r ? r.memo || '' : '';
+  amountAuto = false;
   sheetTitle.textContent = r ? '지출 고치기' : '새 지출';
   buildTitleIndex();
   hideSuggest();
@@ -79,7 +81,7 @@ function openSheet(recordId) {
 
   sheetOverlay.hidden = false;
   document.body.classList.add('locked');
-  if (!r) { fAmount.focus({ preventScroll: true }); settleCaret(fAmount); } // 새로 적을 때만 바로 숫자 키패드
+  if (!r) { fTitle.focus({ preventScroll: true }); settleCaret(fTitle); } // 새로 적을 때만 바로 내역 키보드
   requestAnimationFrame(() => sheetOverlay.classList.add('show'));
 }
 
@@ -185,6 +187,7 @@ function amountValue() {
 fAmount.addEventListener('input', () => {
   const digits = fAmount.value.replace(/[^0-9]/g, '').replace(/^0+/, '').slice(0, 12);
   fAmount.value = digits ? Number(digits).toLocaleString('ko-KR') : '';
+  amountAuto = false;
   showError('');
   if (!instGroup.hidden) renderSplit();
 });
@@ -192,6 +195,8 @@ fAmount.addEventListener('input', () => {
 [fTitle, fMemo].forEach(el => el.addEventListener('keydown', e => {
   if (e.key === 'Enter' && !e.isComposing && e.keyCode !== 229) {
     e.preventDefault();
+    // 새로 적을 때 내역에서 완료 → 아래 금액 칸으로 (숫자 키패드)
+    if (el === fTitle && kind === 'new') { hideSuggest(); fAmount.focus(); settleCaret(fAmount); return; }
     trySave();
   }
 }));
@@ -261,7 +266,15 @@ function renderSuggest() {
   titleSuggest.scrollLeft = 0;
 }
 
-fTitle.addEventListener('input', renderSuggest);
+// 새로 적을 때 이름을 끝까지 똑같이 치면(추천 줄이 사라짐) 그 이름의 최근 값을 채움.
+// 이름이 바뀌어 맞는 게 없어지면 앱이 채운 금액만 비움
+fTitle.addEventListener('input', () => {
+  renderSuggest();
+  if (kind !== 'new') return;
+  const hit = titleIndex.find(e => e.title === fTitle.value.trim());
+  if (hit) fillFromTitle(hit);
+  else if (amountAuto) { fAmount.value = ''; amountAuto = false; if (!instGroup.hidden) renderSplit(); }
+});
 fTitle.addEventListener('blur', () => setTimeout(() => { if (document.activeElement !== fTitle) hideSuggest(); }, 150));
 // 추천을 누를 때 내역 칸의 키보드가 내려가지 않게. 꾹(0.5초) 누르면 이름 바꾸기
 let sgPress = null;
@@ -297,17 +310,24 @@ titleSuggest.addEventListener('click', e => {
   const pick = titleSuggest.hits[Number(b.dataset.i)];
   fTitle.value = pick.title;
   hideSuggest();
-  // 새로 적을 때만: 그 이름을 가장 최근에 쓴 기록의 유형·결제수단을 미리 골라 둠 (바꿀 수 있음)
-  if (kind === 'new') {
-    const last = pick.last;
-    if (state.categories.some(c => c.id === last.categoryId)) form.categoryId = last.categoryId;
-    // 할부·매달 나가는 돈은 그때만의 설정이라 결제수단은 보통 수단일 때만 따라감
-    const m = findMethod(last.methodId);
-    if (m && !m.installment) form.methodId = last.methodId;
-    showError('');
-    renderForm();
-  }
+  if (kind === 'new') fillFromTitle(pick);
 });
+
+// 새로 적을 때만: 그 이름을 가장 최근에 쓴 기록의 유형·결제수단·금액을 미리 채워 둠 (바꿀 수 있음)
+function fillFromTitle(entry) {
+  const last = entry.last;
+  if (state.categories.some(c => c.id === last.categoryId)) form.categoryId = last.categoryId;
+  // 할부·매달 나가는 돈은 그때만의 설정이라 결제수단은 보통 수단일 때만 따라감
+  const m = findMethod(last.methodId);
+  if (m && !m.installment) form.methodId = last.methodId;
+  // 금액: 비어 있거나 앱이 채운 것일 때만. 할부 회차는 나눈 금액이라 따라가지 않음
+  if ((!fAmount.value || amountAuto) && !last.installId && last.amount) {
+    fAmount.value = last.amount.toLocaleString('ko-KR');
+    amountAuto = true;
+  }
+  showError('');
+  renderForm();
+}
 
 // ---------- 내역 이름 바꾸기 ----------
 // 그 이름으로 적은 지난 기록(과 매달 나가는 돈)의 내역만 바꿈. 유형·금액·날짜는 그대로
