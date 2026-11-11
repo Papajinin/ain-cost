@@ -199,3 +199,13 @@ new MutationObserver(list => {
 document.querySelectorAll('.seg').forEach(s => placeSegThumb(s, false));
 // 아이폰 사파리는 이게 있어야 누르는 동안(:active) 모양이 바뀜
 document.addEventListener('touchstart', () => {}, { passive: true });
+
+// 창 바깥(어두운 판)을 눌렀다 뗐을 때만 창을 닫음.
+// 입력칸 안에서 드래그를 시작해 바깥에서 손을 떼면, 브라우저가 이를 '바깥 클릭'으로 알아 창이 닫히던 문제를 막음
+let pressStartTarget = null;
+document.addEventListener('pointerdown', e => { pressStartTarget = e.target; }, true);
+document.addEventListener('click', e => {
+  if (e.target.classList && e.target.classList.contains('overlay') && pressStartTarget !== e.target) {
+    e.stopPropagation();
+  }
+}, true);
