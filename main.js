@@ -39,7 +39,7 @@ document.addEventListener('visibilitychange', () => {
   renderAll();
 });
 
-// 시작 화면: 첫 화면을 다 그린 뒤에 움직이기 시작 → 약 1.8초 움직이고 잠깐 두었다가 사라짐 (세 앱 공통)
+// 시작 화면: 첫 화면을 다 그린 뒤에 움직이기 시작 → 약 1.5초 움직이고 잠깐 두었다가 사라짐 (세 앱 공통)
 // 클라우드 연결(기록 수천 건 받기)은 움직임이 거의 끝난 뒤에 시작해서 끊기지 않게
 let splashStarted = false;
 function startSplash() {
@@ -52,7 +52,7 @@ function startSplash() {
     splash.classList.add('hide');
     setTimeout(() => splash.remove(), 400);
     lockStart(); // 잠금이 켜져 있으면 Face ID·지문 확인 창을 저절로 띄움
-  }, 2000);
+  }, 1600);
 }
 
 loadState(); // 기기에 저장된 내용으로 먼저 보여 주고, 클라우드에서 최신 내용을 받으면 다시 그림

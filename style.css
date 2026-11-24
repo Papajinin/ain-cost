@@ -535,7 +535,8 @@ select.f-date { text-align-last: center; }
 /* ---------- 시작 화면 (스플래시) — 세 앱 공통 순서 ----------
    1. 파란 원이 작게 시작해서 부드럽게 펼쳐짐 (튕기지 않음) 0 ~ 0.6초
    2. 원 안 그림 (앱마다 다름: Todo 체크, Cost ₩, Days 점 9개) 0.5 ~ 1.0초
-   3. 이름 1.0초, 4. 색 점 3개 1.3 ~ 1.5초. 크기·간격은 원 46, 이름 24, 점 8, 간격 18·16 */
+   3. 이름 1.0초. 1.6초에 사라지기 시작. 크기·간격은 원 46, 이름 24, 간격 18
+   (2026-11-24: 아래 색 점 4개를 없앰. 아이콘에서도 없앰) */
 .splash {
   position: fixed; inset: 0; z-index: 60;
   display: grid; place-items: center;
@@ -545,7 +546,7 @@ select.f-date { text-align-last: center; }
 .splash.hide { opacity: 0; pointer-events: none; }
 /* 첫 화면을 그릴 때까지는 멈춰 있다가, main.js가 .go를 붙이면 움직임 (로딩 중에 움직이면 아이폰에서 끊겨 보임) */
 .splash:not(.go) .splash-bg, .splash:not(.go) .splash-draw, .splash:not(.go) .splash-stamp,
-.splash:not(.go) .splash-word, .splash:not(.go) .splash-dots i { animation-play-state: paused; }
+.splash:not(.go) .splash-word { animation-play-state: paused; }
 .splash-mark { display: flex; flex-direction: column; align-items: center; }
 .splash-disc { width: 46px; height: 46px; margin-bottom: 18px; }
 .splash-disc svg { display: block; width: 100%; height: 100%; overflow: visible; }
@@ -553,21 +554,14 @@ select.f-date { text-align-last: center; }
 /* 그리기 전에는 숨김: 둥근 선 끝이 점처럼 먼저 보이는 것을 막음 */
 .splash-draw { fill: none; stroke: #FFFFFF; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 100; stroke-dashoffset: 100; animation: splash-draw var(--d, .4s) ease-in-out var(--at, .55s) both; }
 .splash-stamp { fill: #FFFFFF; stroke: none; transform-box: fill-box; transform-origin: center; animation: splash-dot .3s cubic-bezier(.3, 1.5, .5, 1) both; }
-.splash-word { font-size: 24px; line-height: 1; margin: 0 0 16px; animation: splash-up .5s ease-out 1s both; }
-.splash-dots { display: flex; gap: 7px; }
-.splash-dots i { width: 8px; height: 8px; border-radius: 4px; animation: splash-dot .3s cubic-bezier(.3, 1.6, .5, 1) both; }
-/* 색 점은 네 테마 색 (테마와 상관없이 항상 같음) */
-.splash-dots i:nth-child(1) { background: #0071E3; animation-delay: 1.3s; }
-.splash-dots i:nth-child(2) { background: #00B74F; animation-delay: 1.4s; }
-.splash-dots i:nth-child(3) { background: #D31E3D; animation-delay: 1.5s; }
-.splash-dots i:nth-child(4) { background: #FFCC00; animation-delay: 1.6s; }
+.splash-word { font-size: 24px; line-height: 1; margin: 0; animation: splash-up .5s ease-out 1s both; }
 @keyframes splash-spread { from { transform: scale(.55); opacity: 0; } 40% { opacity: 1; } to { transform: none; opacity: 1; } }
 @keyframes splash-draw { from { stroke-dashoffset: 100; opacity: 0; } 2% { opacity: 1; } to { stroke-dashoffset: 0; opacity: 1; } }
 @keyframes splash-dot { from { transform: scale(0); } to { transform: none; } }
 @keyframes splash-up { from { transform: translateY(8px); opacity: 0; } to { transform: none; opacity: 1; } }
 
 @media (prefers-reduced-motion: reduce) {
-  .splash-bg, .splash-stamp, .splash-word, .splash-dots i { animation: none; }
+  .splash-bg, .splash-stamp, .splash-word { animation: none; }
   .splash-draw { animation: none; stroke-dashoffset: 0; }
   .overlay, .sheet, .action-sheet, .sum-toggle svg, .st-head svg, .cat-row, .future-row svg, .st-slide, .rec, .future-row, .sg, .switch, .switch::after { transition: none; }
 }
