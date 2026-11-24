@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <!-- 홈 화면 앱: 상태 표시줄을 화면과 겹치지 않게 따로 두고, 아이콘 이름은 AIN Cost -->
+  <!-- 홈 화면 앱: 상태 표시줄을 화면과 겹치지 않게 따로 두고, 아이콘 이름은 Cost (2026-11-24: AIN을 빼고 짧게, Done과 같게) -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="AIN Cost">
+  <meta name="apple-mobile-web-app-title" content="Cost">
   <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
   <link rel="icon" type="image/png" href="apple-touch-icon.png?v=3">
   <title>AIN Cost</title>
@@ -21,7 +21,7 @@
   <script>
     // 새 버전 스스로 받기 (네 앱 공통): 켤 때 서버의 version.txt 숫자가 아래 APP_VERSION보다 크면
     // 새 화면 파일을 받아 한 번 새로고침. 올릴 때마다 두 숫자를 같이 올린다
-    const APP_VERSION = 9;
+    const APP_VERSION = 10;
     (function () {
       const t0 = Date.now();
       const key = 'ainCost.updated'; // 같은 버전으로 두 번 새로고침하지 않게
